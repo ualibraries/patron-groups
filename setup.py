@@ -16,7 +16,7 @@ setup(
     author_email         = 'mgsimpson@email.arizona.edu',
     description          = 'Simple EDS-to-Grouper ETL scripting and supporting library.',
     license              = 'BSD 2-Clause',
-    url                  = 'https://github.com/ualibraries/tess-petal',
+    url                  = 'https://github.com/ualibraries/patron-groups',
     
     classifiers = [
         'Programming Language :: Python :: 3',
