@@ -1,0 +1,5 @@
+/.project
+/.pydevproject
+/.python-version
+/src/petal/__pycache__
+/src/Petal.egg-info
