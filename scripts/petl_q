@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+import argparse
+import configparser
+import ldap3
+import logging
+import os
+import petal
+import requests
+
+#
+# main invocation
+
+if __name__ == '__main__':
+
+    #
+    # parse command line arguments
+    
+    parser = argparse.ArgumentParser( description = 'Command-line driver for patron group queries.' )
+    parser.add_argument( '--config', required = True, help = 'path to configuration file for this ETL run' )
+    parser.add_argument( '--group', required = True, help = 'name of patron group (a.k.a. section) in configuration file for this ETL run' )
+    parser.add_argument( '--ldap_host', help = 'LDAP host' )
+    parser.add_argument( '--ldap_base_dn', help = 'base DN for LDAP bind and query' )
+    parser.add_argument( '--ldap_user', help = 'user name for LDAP login' )
+    parser.add_argument( '--ldap_passwd', help = 'password for LDAP login' )
+    parser.add_argument( '--ldap_query', help = 'query string for LDAP search' )
+    args = parser.parse_args()
+    
+    #
+    # load parameters from specified configuration file, fold into command-line overrides
+
+    config = configparser.ConfigParser()
+    config.read( args.config )
+
+    vargs = vars( args )
+    for p in [ 'ldap_host', 'ldap_base_dn', 'ldap_user', 'ldap_passwd', 'ldap_query' ]:
+        if ( p in vargs ) and ( vargs[p] is not None ):
+            vargs[p] = vargs[p]
+        elif ( p in config[args.group] ) and ( config[args.group][p] is not None ):
+            vargs[p] = config[args.group][p]
+        elif ( p in config['global'] ) and ( config['global'][p] is not None ):
+            vargs[p] = config['global'][p]
+        else:
+            vargs[p] = '(unset)'
+
+    #
+    # instantiate ldap query object
+    
+    lq = petal.LDAPQuery( ldap_host = vargs['ldap_host'],
+                          ldap_base_dn = vargs['ldap_base_dn'],
+                          ldap_user = vargs['ldap_user'],
+                          ldap_passwd = vargs['ldap_passwd'], 
+                          ldap_query = vargs['ldap_query'] )
+
+    #
+    # output membership
+    
+    for e in sorted( lq.members ):
+        print( e )
+    
+    #
+    # exit successfully
+
+    exit( 0 )
