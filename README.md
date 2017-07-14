@@ -55,15 +55,15 @@ In general, I recommend specifying everything except passwords in the configurat
 
 A "petl" invocation then looks like:
 
-    % export REQUESTS_CA_BUNDLE="/usr/local/etc/openssl/incommon_rsa_ca_bundle.pem"
+    % export REQUESTS_CA_BUNDLE="./config/incommon_rsa_ca_bundle.pem"
     % ./scripts/petl --config config/petl.ini \
-                     --section students \
+                     --group students \
                      --ldap_passwd *[password]* \
                      --grouper_passwd *[password]* \
                      --sync
 
 (Note the setting of the "REQUESTS_CA_BUNDLE" environment variable: our campus Grouper
-instance uses an SSL CA chain from InCommon that may not be installed on the host
+instance uses an SSL CA chain from [InCommon][incommon] that may not be installed on the host
 running the script -- [downloading the bundle][certs] and pointing to it as shown will
 resolve any "CERTIFICATE_VERIFY_FAILED" errors you see coming out of the script.)
 
@@ -78,7 +78,7 @@ The output from the run will look something like:
 
     2017-06-21 09:04:02,345 INFO starting run:
     2017-06-21 09:04:02,345 INFO     config = config/petl.ini
-    2017-06-21 09:04:02,345 INFO     section = students
+    2017-06-21 09:04:02,345 INFO     group = students
     2017-06-21 09:04:02,346 INFO     ldap_host = eds.arizona.edu
     2017-06-21 09:04:02,346 INFO     ldap_base_dn = dc=eds,dc=arizona,dc=edu
     2017-06-21 09:04:02,346 INFO     ldap_user = ual-pgrps
@@ -140,5 +140,6 @@ Mike Simpson, mgsimpson@email.arizona.edu
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
 [homebrew]: https://brew.sh/
+[incommon]: https://www.incommon.org/
 [certs]: https://spaces.internet2.edu/display/ICCS/InCommon+Cert+Types
 [semver]: http://semver.org/

@@ -18,7 +18,7 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser( description = 'Command-line driver for patron group ETL jobs.' )
     parser.add_argument( '--config', required = True, help = 'path to configuration file for this ETL run' )
-    parser.add_argument( '--section', required = True, help = 'name of configuration section for this ETL run' )
+    parser.add_argument( '--group', required = True, help = 'name of patron group (a.k.a. section) in configuration file for this ETL run' )
     parser.add_argument( '--ldap_host', help = 'LDAP host' )
     parser.add_argument( '--ldap_base_dn', help = 'base DN for LDAP bind and query' )
     parser.add_argument( '--ldap_user', help = 'user name for LDAP login' )
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     logger.info( 'starting run:' )
     logger.info( '    config = %s', args.config )
-    logger.info( '    section = %s', args.section )
+    logger.info( '    group = %s', args.group )
 
     config = configparser.ConfigParser()
     config.read( args.config )
@@ -72,8 +72,8 @@ if __name__ == '__main__':
 
         if ( p in vargs ) and ( vargs[p] is not None ):
             vargs[p] = vargs[p]
-        elif ( p in config[args.section] ) and ( config[args.section][p] is not None ):
-            vargs[p] = config[args.section][p]
+        elif ( p in config[args.group] ) and ( config[args.group][p] is not None ):
+            vargs[p] = config[args.group][p]
         elif ( p in config['global'] ) and ( config['global'][p] is not None ):
             vargs[p] = config['global'][p]
         else:
