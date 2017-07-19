@@ -1,5 +1,10 @@
+/SCRATCH.md
+/.gradle
 /.project
 /.pydevproject
 /.python-version
-/src/petal/__pycache__
-/src/Petal.egg-info
+/src/main/python/dist
+/src/main/python/src/petal/__pycache__
+/src/main/python/src/Petal.egg-info
+/src/main/docker/petal-*.tar.gz
+/PatronETL.pem

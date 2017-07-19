@@ -2,144 +2,173 @@
 
 ## Overview
 
-This is a small, quick [Python][python] hack that synchronizes [LDAP][ldap] queries against UA's
-Enterprise Directory Service ("EDS") into [Grouper][grouper] groups living in UA's central
-Grouper service.  In the original use case, those group memberships then show up as 
-"isMemberOf" attributes in the information returned from a successful [Shibboleth][shibboleth] 
-authentication; vendors running Shib-aware services can then use the "isMemberOf" 
-information to make authorization and access control decisions.
+This project comes in two pieces:
 
-The general principle -- exposing the complexity of "who gets access to what" as simple
-authorization attributes based on group membership -- should hopefully be broadly 
-applicable to other use cases in the future.
+*   The first piece is a small, quick [Python][python] hack that synchronizes [LDAP][ldap]
+    queries against UA's Enterprise Directory Service ("EDS") into [Grouper][grouper] groups
+    living in UA's central Grouper service.  In the original use case, those group memberships
+    then show up as "isMemberOf" attributes in the information returned from a successful 
+    [Shibboleth][shibboleth] authentication; vendors running Shib-aware services can then 
+    use the "isMemberOf" information to make authorization and access control decisions.
+
+*   The second piece is a [Docker][docker] container that provides the runtime environment
+    for the first piece: a minimal [Alpine Linux][alpine] distribution, with just enough
+    added package support to run the Python bits of the first piece, plus a [Crond][crond]
+    daemon configured to run the patron group load jobs once a day at or around midnight. 
+    Once built, the resulting Docker image should be deployable into any standard Docker
+    environment; no persistent state is generated so a simple "remove when done"
+    instantiation will work fine.
+
+Note that the general principle behind this project -- exposing the complexity of "who gets 
+access to what" as simple authorization attributes based on group membership -- should hopefully
+be broadly applicable to other use cases in the future.
 
 ## Setup
 
-This software is implemented as a Python module that includes a primary library ("petal")
-and a command-line driver script ("petl").  The simplest way to use it is to use something 
-like [pyenv][pyenv] and [pyenv-virtualenv][pyenv-virtualenv] to create a Python interpreter
-installation specific to the module, and then use "pip" to do a local (symlinked) install
-of the module.
-
-For instance, on macOS, assuming you've already got the [Homebrew][homebrew] package manager
-installed, you might do something like the following:
+### Python
+    
+Install a Python 3 environment, using your preferred method and following instructions
+on the Python website. If you want to avoid polluting your system-level Python environment,
+install a local environment using something like [PyEnv][pyenv] and 
+[PyEnv-Virtualenv][pyenv-virtualenv], e.g. on macOS:
 
     % brew update
     % brew install pyenv
     % brew install pyenv-virtualenv
-	% pyenv install 3.6.1
-    % pyenv virtualenv 3.6.1 ual-patron-groups
     
-        [ add lines to shell startup scripts per pyenv/pyenv-virtualenv output ]
+        [ added shim lines to shell startup files as instructed by installation output ]
+        
+	% pyenv install 3.6.2
+    % pyenv virtualenv 3.6.2 ual-patron-groups
+    % pyenv global ual-patron-groups
     
-    % git clone https://github.com/ualibraries/patron-groups ual-patron-groups
+        % which python
+        /Users/mgsimpson/.pyenv/shims/python
+
+        % pyenv which python
+        /Users/mgsimpson/.pyenv/versions/ual-patron-groups/bin/python
+
+        % python --version
+        Python 3.6.2
+
+### Docker
+
+Install a recent-version Docker environment, following installation instructions for your
+OS on the Docker website, e.g. on macOS:
+
+    [ followed download and installation instructions for Docker CE for Mac ]
+    [ started Docker app ]
+    
+        % which docker
+        /usr/local/bin/docker
+        
+        % docker --version
+        Docker version 17.06.2-ce, build cec0b72
+
+### Source
+
+Clone the repository into a project directory using your preferred method, e.g.
+
+    % cd Desktop/Projects
+    % git clone git@github.com:ualibraries/patron-groups.git ual-patron-groups
     % cd ual-patron-groups
-    % pyenv local ual-patron-groups
-    % pip install -e .
 
-At this point, you should be able to run "petl" commands out of the root directory
-of the project.
+You should now be ready to build the project.
 
-## Usage
+## Building
 
-A patron groups run needs about a dozen different parameters to specify all of the
-relevant LDAP, Grouper, and batch processing information. The "petl" script looks in
-three places to resolve those parameters:
+### Python Module
 
-*   Global defaults from a specified configuration file;
-*   Per-group parameters from a specific section within that configuration file
-    (overrides globals);
-*   Command-line parameters (overrides globals and per-group values).
+Change to the Python source directory, install the module's prerequisites, and then
+build a source distribution of the module:
 
-In general, I recommend specifying everything except passwords in the configuration file.
-
-A "petl" invocation then looks like:
-
-    % export REQUESTS_CA_BUNDLE="./config/incommon_rsa_ca_bundle.pem"
-    % ./scripts/petl --config config/petl.ini \
-                     --group students \
-                     --ldap_passwd *[password]* \
-                     --grouper_passwd *[password]* \
-                     --sync
-
-(Note the setting of the "REQUESTS_CA_BUNDLE" environment variable: our campus Grouper
-instance uses an SSL CA chain from [InCommon][incommon] that may not be installed on the host
-running the script -- [downloading the bundle][certs] and pointing to it as shown will
-resolve any "CERTIFICATE_VERIFY_FAILED" errors you see coming out of the script.)
-
-The script (using the supporting library) will then query LDAP to determine the
-current set of UAIDs that match the query; query Grouper to determine the current population
-of the corresponding group; compare the results of the two queries and determine
-drops and adds to synchronize them; and finally perform those modifications to the group
-in batches (doing them all at once for a big group can run into timeout issues with
-the Grouper server, which is a little slow).
-
-The output from the run will look something like:
-
-    2017-06-21 09:04:02,345 INFO starting run:
-    2017-06-21 09:04:02,345 INFO     config = config/petl.ini
-    2017-06-21 09:04:02,345 INFO     group = students
-    2017-06-21 09:04:02,346 INFO     ldap_host = eds.arizona.edu
-    2017-06-21 09:04:02,346 INFO     ldap_base_dn = dc=eds,dc=arizona,dc=edu
-    2017-06-21 09:04:02,346 INFO     ldap_user = ual-pgrps
-    2017-06-21 09:04:02,347 INFO     ldap_passwd = (set)
-    2017-06-21 09:04:02,347 INFO     ldap_query = (eduPersonAffiliation=student)
-    2017-06-21 09:04:02,347 INFO     grouper_host = grouper.arizona.edu
-    2017-06-21 09:04:02,347 INFO     grouper_base_path = grouper-ws/servicesRest/json/v2_2_001/groups
-    2017-06-21 09:04:02,347 INFO     grouper_user = ual-pgrps
-    2017-06-21 09:04:02,347 INFO     grouper_passwd = (set)
-    2017-06-21 09:04:02,347 INFO     grouper_stem = arizona.edu:dept:LBRY:pgrps
-    2017-06-21 09:04:02,347 INFO     grouper_group = ual-students
-    2017-06-21 09:04:02,347 INFO     batch_size = 1000
-    2017-06-21 09:04:02,347 INFO     batch_timeout = 900
-    2017-06-21 09:04:02,347 INFO     sync = True
-    2017-06-21 09:04:02,348 INFO     debug = False
-    2017-06-21 09:04:02,348 INFO executing ldap query and compiling members
-    2017-06-21 09:05:10,436 INFO found 55849 entries via LDAP query
-    2017-06-21 09:05:10,437 INFO executing grouper query and compiling members
-    2017-06-21 09:08:01,060 INFO found 55651 entries via Grouper query
-    2017-06-21 09:08:01,073 INFO ldap and grouper have 55582 members in common
-    2017-06-21 09:08:01,087 INFO synchronization will drop 69 entries from grouper group
-    2017-06-21 09:08:01,080 INFO synchronization will add 267 entries to grouper group
-    2017-06-21 09:08:01,087 INFO synchronizing ...
-    2017-06-21 09:08:01,087 INFO synchronizing ldap query results to ual-students
-    2017-06-21 09:08:01,088 INFO batch size = 1000, batch timeout = 900 seconds
-    2017-06-21 09:08:01,088 INFO processing drops:
-    2017-06-21 09:08:37,587 INFO dropped batch 1, 69 entries, 36 seconds
-    2017-06-21 09:08:37,587 INFO processing adds:
-    2017-06-21 09:09:37,946 INFO added batch 1, 267 entries, 60 seconds
-    2017-06-21 09:09:37,946 INFO run complete.
-
-You can leave off the "--sync" switch to do a dry run ("petl" will run the queries
-and calculate the changes, but not actually execute them).  You can also add a "--debug"
-switch to get additional trace logging as the process executes.
-
-## Versioning
-
-A few simple recommendations on [semantic versioning][semver]:
-
-*   If you touch anything in the "petal" library code that then requires client-side changes in
-    the "petl" script (e.g. you changed the library API), that's a major number change for 
-    sure (1 → 2).
-*   If you change things in the "petl" script, or add a new section to configuration in "petl.ini",
-    that's probably a minor version increment (1.1 → 1.2).
-*   If you're making a small tweak to an existing configuration, or fixing a minor bug that doesn't
-    otherwise change the library or command-line API, that's a patch increment (1.5.2 → 1.5.3).
+    % cd src/main/python
+    % pip install --trusted-host pypi.python.org -r requirements.txt
+    % python setup.py sdist
     
-As always, these are just suggestions.
+        % ls dist
+        petal-1.2.0.tar.gz
+        
+    % cd ../../..
+    
+### Docker Image
+
+Change to the Docker source directory, copy the distribution file over from the Python
+side, and build the Docker container image:
+
+    % cd src/main/docker
+    % cp ../python/dist/petal-1.2.0.tar.gz .
+    % docker build -t pgrps:1.2.0 .
+    
+        % docker images
+        REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+        pgrps               1.2.0               2579a8161e42        13 seconds ago      81.9MB
+        
+    % cd ../../..
+    
+## Running
+
+### Setup
+
+Set the following environment variables to appropriate values:
+
+    LDAP_PASSWD
+    GROUPER_PASSWD
+    SLACK_WEBHOOK
+
+The LDAP and Grouper passwords are used for building out the patron groups themselves;
+the Slack webhook controls where the logging output will go.
+    
+### Testing
+
+If you want to fire up the container and poke around, or run things by hand, 
+instantiate using an interactive shell:
+
+    % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
+                 -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
+                 -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
+                 --rm -it pgrps:1.2.0 /bin/bash
+
+        # which petl
+        /usr/bin/petl
+        
+        # /etc/periodic/daily/run_petl
+        
+        [ ... ]
+        
+        # exit
+
+The log output from the "run_petl" invocation should wind up in the Slack channel
+associated with the "SLACK_WEBHOOK" environment variable set above.
+
+### Production
+
+If you want to instantiate the container, and let the installed cron daemon
+run the patron group load automatically once a day, instantiate in the background:
+
+    % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
+                 -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
+                 -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
+                 --rm -d pgrps:1.2.0
+
+The log output from the "run_petl" invocation should once again wind up in the 
+Slack channel associated with the "SLACK_WEBHOOK" environment variable set above.
 
 ## Maintainers
 
 Mike Simpson, mgsimpson@email.arizona.edu
 
 
+
+
 [python]: https://www.python.org/
 [ldap]: https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol
 [grouper]: https://www.internet2.edu/products-services/trust-identity/grouper/
 [shibboleth]: https://shibboleth.net/
+[docker]: https://www.docker.com/
+[alpine]: https://alpinelinux.org/
+[crond]: https://en.wikipedia.org/wiki/Cron
+[gradle]: https://gradle.org/
+[homebrew]: https://brew.sh/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
-[homebrew]: https://brew.sh/
-[incommon]: https://www.incommon.org/
-[certs]: https://spaces.internet2.edu/display/ICCS/InCommon+Cert+Types
-[semver]: http://semver.org/

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for g in faculty staff students dcc hsl
+do
+    /usr/bin/petl --config /etc/petal/petl.ini \
+                  --group ${g} \
+                  --ldap_passwd ${LDAP_PASSWD} \
+                  --grouper_passwd ${GROUPER_PASSWD} \
+                  --slack ${SLACK_WEBHOOK} \
+                  --sync
+done
