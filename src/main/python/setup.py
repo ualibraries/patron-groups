@@ -3,14 +3,20 @@ from src.petal import __version__
 
 setup(
 
-    name                 = 'Petal',
+    name                 = 'petal',
     version              = __version__,
     packages             = find_packages( 'src' ),
     package_dir          = { '': 'src' },
-    entry_points = {
-    },
+    scripts              = [ 
+        'scripts/petl',
+        'scripts/petl_q',
+    ],
+    data_files           = [
+        ( '/etc/petal', [ 'config/incommon_rsa_ca_bundle.pem', 
+                          'config/petl.ini' ] ),
+    ],
 
-    install_requires     = [ 'ldap3', 'requests' ],
+    install_requires     = [ 'certifi', 'ldap3', 'requests', 'slack_log_handler' ],
 
     author               = 'Mike Simpson',
     author_email         = 'mgsimpson@email.arizona.edu',

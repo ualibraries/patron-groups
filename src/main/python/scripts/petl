@@ -7,6 +7,7 @@ import logging
 import os
 import petal
 import requests
+import slack_log_handler
 
 #
 # main invocation
@@ -34,17 +35,24 @@ if __name__ == '__main__':
     parser.add_argument( '--batch_timeout', help = 'synchronization batch timeout in seconds')
     parser.add_argument( '--sync', action = 'store_true', help = 'perform synchronization' )
     parser.add_argument( '--debug', action = 'store_true', help = 'turn on debug logging' )
+    parser.add_argument( '--slack', help = 'redirect logging to Slack webhook' )
     args = parser.parse_args()
     
     #
     # setup logging
 
     logger = logging.getLogger( __name__ )
-    handler = logging.StreamHandler()
-    if args.debug:
-        formatter = logging.Formatter( '%(asctime)s %(levelname)s %(name)s %(funcName)s(): %(message)s' )
+    if args.slack:
+        handler = slack_log_handler.SlackLogHandler( args.slack, username = 'petl' )
+        format = '%(levelname)s '
     else:
-        formatter = logging.Formatter( '%(asctime)s %(levelname)s %(message)s' )
+        handler = logging.StreamHandler()
+        format = '%(asctime)s %(levelname)s '
+    if args.debug:
+        format += '%(name)s %(funcName)s(): %(message)s'
+    else:
+        format += '%(message)s'
+    formatter = logging.Formatter( format )
     handler.setFormatter( formatter )
     logger.addHandler( handler )
     petal.logger.addHandler( handler )
@@ -55,12 +63,18 @@ if __name__ == '__main__':
         logger.setLevel( logging.INFO )
         petal.logger.setLevel( logging.INFO )
 
-    #
-    # load parameters from specified configuration file, fold into command-line overrides
 
+    #
+    # tag top of run
+    
+    if args.slack:
+        logger.info( '----------[ petl script executing ]----------' )
     logger.info( 'starting run:' )
     logger.info( '    config = %s', args.config )
     logger.info( '    group = %s', args.group )
+
+    #
+    # load parameters from specified configuration file, fold into command-line overrides
 
     config = configparser.ConfigParser()
     config.read( args.config )
@@ -81,14 +95,14 @@ if __name__ == '__main__':
 
         if p in [ 'ldap_passwd', 'grouper_passwd' ]:
             if vargs[p] is '(unset)':
-                logger.info( '    %s = (unset)', p )
+                logger.debug( '    %s = (unset)', p )
             else:
-                logger.info( '    %s = (set)', p )
+                logger.debug( '    %s = (set)', p )
         else:
-            logger.info( '    %s = %s', p, vargs[p] )
+            logger.debug( '    %s = %s', p, vargs[p] )
     
-    logger.info( '    sync = %s', args.sync )
-    logger.info( '    debug = %s', args.debug )
+    logger.debug( '    sync = %s', args.sync )
+    logger.debug( '    debug = %s', args.debug )
 
     #
     # instantiate ldap query object
@@ -135,4 +149,7 @@ if __name__ == '__main__':
     # exit successfully
 
     logger.info( 'run complete.' )
+    if args.slack:
+        logger.info( '----------[ petl script exiting ]----------' )
+
     exit( 0 )

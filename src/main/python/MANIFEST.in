@@ -1,0 +1,3 @@
+include requirements.txt
+include config/incommon_rsa_ca_bundle.pem
+include config/petl.ini
