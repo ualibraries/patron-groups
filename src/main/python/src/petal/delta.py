@@ -58,16 +58,16 @@ class Delta( object ):
             n_batches += 1
             
             start_t = datetime.datetime.now()
-            rsp = requests.delete( self.grouper_query_instance.grouper_group_members_url,
-                                   auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
-                                   data = json.dumps( {
-                                                          'WsRestDeleteMemberRequest': {
-                                                              'replaceAllExisting': 'F',
-                                                              'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
-                                                           }
-                                                      } ),
-                                   headers = { 'Content-type': 'text/x-json' },
-                                   timeout = self.batch_timeout )
+            rsp = requests.post( self.grouper_query_instance.grouper_group_members_url,
+                                 auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
+                                 data = json.dumps( {
+                                                        'WsRestDeleteMemberRequest': {
+                                                            'replaceAllExisting': 'F',
+                                                            'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
+                                                         }
+                                                    } ),
+                                 headers = { 'Content-type': 'text/x-json' },
+                                 timeout = self.batch_timeout )
             end_t = datetime.datetime.now()
             batch_t = ( end_t - start_t ).total_seconds()
 
@@ -85,16 +85,16 @@ class Delta( object ):
             n_batches += 1
             
             start_t = datetime.datetime.now()
-            rsp = requests.delete( self.grouper_query_instance.grouper_group_members_url,
-                                   auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
-                                   data = json.dumps( {
-                                                          'WsRestAddMemberRequest': {
-                                                              'replaceAllExisting': 'F',
-                                                              'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
-                                                           }
-                                                      } ),
-                                   headers = { 'Content-type': 'text/x-json' },
-                                   timeout = self.batch_timeout )
+            rsp = requests.put( self.grouper_query_instance.grouper_group_members_url,
+                                auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
+                                data = json.dumps( {
+                                                       'WsRestAddMemberRequest': {
+                                                           'replaceAllExisting': 'F',
+                                                           'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
+                                                        }
+                                                   } ),
+                                headers = { 'Content-type': 'text/x-json' },
+                                timeout = self.batch_timeout )
             end_t = datetime.datetime.now()
             batch_t = ( end_t - start_t ).total_seconds()
             

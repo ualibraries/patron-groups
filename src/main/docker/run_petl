@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for g in faculty staff students dcc hsl
+for g in faculty-base staff-base students-base dcc-base hsl-base
 do
     /usr/bin/petl --config /etc/petal/petl.ini \
                   --group ${g} \

@@ -1,4 +1,4 @@
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 from .ldap_query import LDAPQuery
 from .grouper_query import GrouperQuery
