@@ -8,3 +8,4 @@
 /src/main/python/src/petal.egg-info
 /src/main/docker/petal-*.tar.gz
 /PatronETL.pem
+*.DS_Store
