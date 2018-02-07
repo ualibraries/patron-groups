@@ -87,7 +87,7 @@ build a source distribution of the module:
     % python setup.py sdist
     
         % ls dist
-        petal-1.2.1.tar.gz
+        petal-1.2.6.tar.gz
         
     % cd ../../..
     
@@ -97,12 +97,12 @@ Change to the Docker source directory, copy the distribution file over from the 
 side, and build the Docker container image:
 
     % cd src/main/docker
-    % cp ../python/dist/petal-1.2.1.tar.gz .
-    % docker build -t pgrps:1.2.1 .
+    % cp ../python/dist/petal-1.2.6.tar.gz .
+    % docker build -t pgrps:1.2.6 .
     
         % docker images
         REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-        pgrps               1.2.1               2579a8161e42        13 seconds ago      81.9MB
+        pgrps               1.2.6               2579a8161e42        13 seconds ago      81.9MB
         
     % cd ../../..
     
@@ -127,7 +127,7 @@ instantiate using an interactive shell:
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -it pgrps:1.2.1 /bin/bash
+                 --rm -it pgrps:1.2.6 /bin/bash
 
         # which petl
         /usr/bin/petl
@@ -149,7 +149,7 @@ run the patron group load automatically once a day, instantiate in the backgroun
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -d pgrps:1.2.1
+                 --rm -d pgrps:1.2.6
 
 The log output from the "run_petl" invocation should once again wind up in the 
 Slack channel associated with the "SLACK_WEBHOOK" environment variable set above.

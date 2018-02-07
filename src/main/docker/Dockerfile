@@ -6,7 +6,7 @@ ENV PACKAGES="dumb-init musl bash python3 python3-dev ca-certificates tzdata" \
 	GROUPER_PASSWD="***supply at runtime***" \
 	SLACK_WEBHOOK="***supply at runtime***"
 
-ADD petal-1.2.5.tar.gz /var/tmp
+ADD petal-1.2.6.tar.gz /var/tmp
 ADD run_petl /etc/periodic/daily
 
 RUN echo \
@@ -34,8 +34,8 @@ RUN echo \
   && echo "US/Arizona" >  /etc/timezone \
   
   # install petal
-  && pip install --trusted-host pypi.python.org -r /var/tmp/petal-1.2.5/requirements.txt \
-  && pip install /var/tmp/petal-1.2.5
+  && pip install --trusted-host pypi.python.org -r /var/tmp/petal-1.2.6/requirements.txt \
+  && pip install /var/tmp/petal-1.2.6
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/usr/sbin/crond", "-f" ]
