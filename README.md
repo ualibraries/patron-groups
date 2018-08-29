@@ -27,7 +27,7 @@ be broadly applicable to other use cases in the future.
 
 ### Python
     
-Install a Python 3 environment, using your preferred method and following instructions
+Install a Python 3 environment, using your preferred method and following the instructions
 on the Python website. If you want to avoid polluting your system-level Python environment,
 install a local environment using something like [PyEnv][pyenv] and 
 [PyEnv-Virtualenv][pyenv-virtualenv], e.g. on macOS:
@@ -38,8 +38,8 @@ install a local environment using something like [PyEnv][pyenv] and
     
         [ added shim lines to shell startup files as instructed by installation output ]
         
-	% pyenv install 3.6.2
-    % pyenv virtualenv 3.6.2 ual-patron-groups
+	% pyenv install 3.7.0
+    % pyenv virtualenv 3.7.0 ual-patron-groups
     % pyenv global ual-patron-groups
     
         % which python
@@ -49,7 +49,7 @@ install a local environment using something like [PyEnv][pyenv] and
         /Users/mgsimpson/.pyenv/versions/ual-patron-groups/bin/python
 
         % python --version
-        Python 3.6.2
+        Python 3.7.0
 
 ### Docker
 
@@ -63,7 +63,7 @@ OS on the Docker website, e.g. on macOS:
         /usr/local/bin/docker
         
         % docker --version
-        Docker version 17.06.2-ce, build cec0b72
+		Docker version 18.06.1-ce, build e68fc7a
 
 ### Source
 
@@ -87,7 +87,7 @@ build a source distribution of the module:
     % python setup.py sdist
     
         % ls dist
-        petal-1.2.8.tar.gz
+        petal-1.3.0.tar.gz
         
     % cd ../../..
     
@@ -97,12 +97,12 @@ Change to the Docker source directory, copy the distribution file over from the 
 side, and build the Docker container image:
 
     % cd src/main/docker
-    % cp ../python/dist/petal-1.2.8.tar.gz .
-    % docker build -t pgrps:1.2.8 .
+    % cp ../python/dist/petal-1.3.0.tar.gz .
+    % docker build -t pgrps:1.3.0 .
     
         % docker images
         REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-        pgrps               1.2.8               2579a8161e42        13 seconds ago      81.9MB
+        pgrps               1.3.0               e58ccd1131ef        12 seconds ago      80.1MB
         
     % cd ../../..
     
@@ -127,13 +127,12 @@ instantiate using an interactive shell:
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -it pgrps:1.2.8 /bin/bash
+                 --rm -it pgrps:1.3.0 /bin/bash
 
         # which petl
         /usr/bin/petl
         
         # /etc/periodic/daily/run_petl
-        
         [ ... ]
         
         # exit
@@ -149,7 +148,7 @@ run the patron group load automatically once a day, instantiate in the backgroun
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -d pgrps:1.2.8
+                 --rm -d pgrps:1.3.0
 
 The log output from the "run_petl" invocation should once again wind up in the 
 Slack channel associated with the "SLACK_WEBHOOK" environment variable set above.
