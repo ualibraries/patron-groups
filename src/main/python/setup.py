@@ -9,7 +9,6 @@ setup(
     package_dir          = { '': 'src' },
     scripts              = [ 
         'scripts/petl',
-        'scripts/petl_q',
     ],
     data_files           = [
         ( '/etc/petal', [ 'config/incommon_rsa_ca_bundle.pem', 
