@@ -4,32 +4,39 @@
 
 This project comes in two pieces:
 
-*   The first piece is a small, quick [Python][python] hack that synchronizes [LDAP][ldap]
-    queries against UA's Enterprise Directory Service ("EDS") into [Grouper][grouper] groups
-    living in UA's central Grouper service.  In the original use case, those group memberships
-    then show up as "isMemberOf" attributes in the information returned from a successful 
-    [Shibboleth][shibboleth] authentication; vendors running Shib-aware services can then 
-    use the "isMemberOf" information to make authorization and access control decisions.
+*   The first piece is a small, quick [Python][python] hack that
+    synchronizes [LDAP][ldap] queries against UA's Enterprise
+    Directory Service ("EDS") into [Grouper][grouper] groups living in
+    UA's central Grouper service.  In the original use case, those
+    group memberships then show up as "isMemberOf" attributes in the
+    information returned from a successful [Shibboleth][shibboleth]
+    authentication; vendors running Shib-aware services can then use
+    the "isMemberOf" information to make authorization and access
+    control decisions.
 
-*   The second piece is a [Docker][docker] container that provides the runtime environment
-    for the first piece: a minimal [Alpine Linux][alpine] distribution, with just enough
-    added package support to run the Python bits of the first piece, plus a [Crond][crond]
-    daemon configured to run the patron group load jobs once a day at or around midnight. 
-    Once built, the resulting Docker image should be deployable into any standard Docker
-    environment; no persistent state is generated so a simple "remove when done"
-    instantiation will work fine.
+*   The second piece is a [Docker][docker] container that provides the
+    runtime environment for the first piece: a minimal [Alpine
+    Linux][alpine] distribution, with just enough added package
+    support to run the Python bits of the first piece, plus a
+    [Crond][crond] daemon configured to run the patron group load jobs
+    once a day at or around midnight.  Once built, the resulting
+    Docker image should be deployable into any standard Docker
+    environment; no persistent state is generated so a simple "remove
+    when done" instantiation will work fine.
 
-Note that the general principle behind this project -- exposing the complexity of "who gets 
-access to what" as simple authorization attributes based on group membership -- should hopefully
-be broadly applicable to other use cases in the future.
+Note that the general principle behind this project -- exposing the
+complexity of "who gets access to what" as simple authorization
+attributes based on group membership -- should hopefully be broadly
+applicable to other use cases in the future.
 
 ## Setup
 
 ### Python
     
-Install a Python 3 environment, using your preferred method and following the instructions
-on the Python website. If you want to avoid polluting your system-level Python environment,
-install a local environment using something like [PyEnv][pyenv] and 
+Install a Python 3 environment, using your preferred method and
+following the instructions on the Python website. If you want to avoid
+polluting your system-level Python environment, install a local
+environment using something like [PyEnv][pyenv] and
 [PyEnv-Virtualenv][pyenv-virtualenv], e.g. on macOS:
 
     % brew update
@@ -38,8 +45,8 @@ install a local environment using something like [PyEnv][pyenv] and
     
         [ added shim lines to shell startup files as instructed by installation output ]
         
-	% pyenv install 3.7.0
-    % pyenv virtualenv 3.7.0 ual-patron-groups
+	% pyenv install 3.7.2
+    % pyenv virtualenv 3.7.2 ual-patron-groups
     % pyenv global ual-patron-groups
     
         % which python
@@ -49,25 +56,26 @@ install a local environment using something like [PyEnv][pyenv] and
         /Users/mgsimpson/.pyenv/versions/ual-patron-groups/bin/python
 
         % python --version
-        Python 3.7.0
+        Python 3.7.2
 
 ### Docker
 
-Install a recent-version Docker environment, following installation instructions for your
-OS on the Docker website, e.g. on macOS:
+Install a recent-version Docker environment, following installation
+instructions for your OS on the Docker website, e.g. on macOS:
 
-    [ followed download and installation instructions for Docker CE for Mac ]
+    [ followed download and installation instructions for Docker Desktop for Mac ]
     [ started Docker app ]
     
         % which docker
         /usr/local/bin/docker
         
         % docker --version
-		Docker version 18.06.1-ce, build e68fc7a
+		Docker version 18.09.1, build 4c52b90
 
 ### Source
 
-Clone the repository into a project directory using your preferred method, e.g.
+Clone the repository into a project directory using your preferred
+method, e.g.
 
     % cd Desktop/Projects
     % git clone git@github.com:ualibraries/patron-groups.git ual-patron-groups
@@ -79,30 +87,30 @@ You should now be ready to build the project.
 
 ### Python Module
 
-Change to the Python source directory, install the module's prerequisites, and then
-build a source distribution of the module:
+Change to the Python source directory, install the module's
+prerequisites, and then build a source distribution of the module:
 
     % cd src/main/python
     % pip install --trusted-host pypi.python.org -r requirements.txt
     % python setup.py sdist
     
         % ls dist
-        petal-1.3.0.tar.gz
+        petal-1.4.0.tar.gz
         
     % cd ../../..
     
 ### Docker Image
 
-Change to the Docker source directory, copy the distribution file over from the Python
-side, and build the Docker container image:
+Change to the Docker source directory, copy the distribution file over
+from the Python side, and build the Docker container image:
 
     % cd src/main/docker
-    % cp ../python/dist/petal-1.3.0.tar.gz .
-    % docker build -t pgrps:1.3.0 .
+    % cp ../python/dist/petal-1.4.0.tar.gz .
+    % docker build -t pgrps:1.4.0 .
     
         % docker images
         REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-        pgrps               1.3.0               e58ccd1131ef        12 seconds ago      80.1MB
+        pgrps               1.4.0               16cfafa9d0f1        12 seconds ago      80.1MB
         
     % cd ../../..
     
@@ -116,18 +124,19 @@ Set the following environment variables to appropriate values:
     GROUPER_PASSWD
     SLACK_WEBHOOK
 
-The LDAP and Grouper passwords are used for building out the patron groups themselves;
-the Slack webhook controls where the logging output will go.
+The LDAP and Grouper passwords are used for building out the patron
+groups themselves; the Slack webhook controls where the logging output
+will go.
     
 ### Testing
 
-If you want to fire up the container and poke around, or run things by hand, 
-instantiate using an interactive shell:
+If you want to fire up the container and poke around, or run things by
+hand, instantiate using an interactive shell:
 
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -it pgrps:1.3.0 /bin/bash
+                 --rm -it pgrps:1.4.0 /bin/bash
 
         # which petl
         /usr/bin/petl
@@ -137,21 +146,24 @@ instantiate using an interactive shell:
         
         # exit
 
-The log output from the "run_petl" invocation should wind up in the Slack channel
-associated with the "SLACK_WEBHOOK" environment variable set above.
+The log output from the "run_petl" invocation should wind up in the
+Slack channel associated with the "SLACK_WEBHOOK" environment variable
+set above.
 
 ### Production
 
-If you want to instantiate the container, and let the installed cron daemon
-run the patron group load automatically once a day, instantiate in the background:
+If you want to instantiate the container, and let the installed cron
+daemon run the patron group load automatically once a day, instantiate
+in the background:
 
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -d pgrps:1.3.0
+                 --rm -d pgrps:1.4.0
 
-The log output from the "run_petl" invocation should once again wind up in the 
-Slack channel associated with the "SLACK_WEBHOOK" environment variable set above.
+The log output from the "run_petl" invocation should once again wind
+up in the Slack channel associated with the "SLACK_WEBHOOK"
+environment variable set above.
 
 ## Maintainers
 
