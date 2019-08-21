@@ -1,7 +1,7 @@
 # Deployment Notes
 
 Here are the steps that Mike Simpson went through to deploy the
-production instance of the patron groups software in January 2019.
+production instance of the patron groups software in August 2019.
 
 ## Prerequisites
 
@@ -19,12 +19,14 @@ production instance of the patron groups software in January 2019.
 In the AWS Console, logged in via the "mgsimpson" IAM account, pointed
 at the "Oregon (US-West-2)" AWS region:
 
-*   In the "Security Group" section of the EC2 module, created the
-    "PatronETL" security group to limit access to the host that would
-    be created in the following step.
+*   (DONE PREVIOUSLY, NO NEED TO REPEAT) In the "Security Group"
+    section of the EC2 module, created the "PatronETL" security group
+    to limit access to the host that would be created in the following
+    step.
 	
-*   In the "Key Pairs" section of the EC2 module, created the
-    "PatronETL" key pair and downloaded and saved a local copy.
+*   (DONE PREVIOUSLY, NO NEED TO REPEAT) In the "Key Pairs" section of
+    the EC2 module, created the "PatronETL" key pair and downloaded
+    and saved a local copy.
 
 *   In the "Instances" section of the EC2 module, selected "Launch
     Instance", and used the following parameters:
@@ -68,7 +70,7 @@ In a terminal window on my local workstation:
         % ssh -i [path to saved key pair file] rancher@[hostname from EC2 dashboard]
 		
             $ sudo ros os version
-	        v1.5.0
+	        v1.5.3
 			
 			$ exit
 			
@@ -77,6 +79,7 @@ In a terminal window on my local workstation:
         % ssh -i [path to saved key pair file] rancher@[hostname from EC2 dashboard]
 		
             $ sudo ros console enable centos
+			$ sudo reboot
 			
 			    [SSH session terminated]
 
@@ -91,16 +94,16 @@ In a terminal window on my local workstation:
 			disabled ubuntu
 			
 		    $ sudo yum install epel-release
-			$ sudo yum install git python34 python34-pip
+			$ sudo yum install git python36 python36-pip
 			
 			$ git --version
 			git version 1.8.3.1
 			
 			$ python3 --version
-			Python 3.4.9
+			Python 3.6.8
 			
 			$ pip3 --version
-			pip 8.1.2 from /usr/lib/python3.4/site-packages (python 3.4)
+			pip 8.1.2 from /usr/lib/python3.6/site-packages (python 3.6)
 			
             $ exit
 			
@@ -115,7 +118,7 @@ In a terminal window on my local workstation:
 		
             $ git clone https://github.com/ualibraries/patron-groups.git ual-patron-groups
 			$ cd ual-patron-groups
-			$ git checkout v1.4.2
+			$ git checkout v1.4.3
 			
 			$ cd src/main/python
             $ sudo pip3 install --trusted-host pypi.python.org -r requirements.txt
@@ -123,11 +126,11 @@ In a terminal window on my local workstation:
             $ cd ../../..
 			
 			$ cd src/main/docker
-            $ cp ../python/dist/petal-1.4.2.tar.gz .
-            $ docker build -t pgrps:1.4.2 .
+            $ cp ../python/dist/petal-1.4.3.tar.gz .
+            $ docker build -t pgrps:1.4.3 .
 			$ cd ../../..
 
             $ export LDAP_PASSWD=[ldap password]
 			$ export GROUPER_PASSWD=[grouper password]
 			$ export SLACK_WEBHOOK=[slack webhook]
-            $ docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" -e "GROUPER_PASSWD=${GROUPER_PASSWD}" -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" --rm -d pgrps:1.4.2
+            $ docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" -e "GROUPER_PASSWD=${GROUPER_PASSWD}" -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" --rm -d pgrps:1.4.3
