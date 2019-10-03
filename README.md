@@ -95,7 +95,7 @@ prerequisites, and then build a source distribution of the module:
     % python setup.py sdist
     
         % ls dist
-        petal-1.4.5.tar.gz
+        petal-1.4.6.tar.gz
         
     % cd ../../..
     
@@ -105,12 +105,12 @@ Change to the Docker source directory, copy the distribution file over
 from the Python side, and build the Docker container image:
 
     % cd src/main/docker
-    % cp ../python/dist/petal-1.4.5.tar.gz .
-    % docker build -t pgrps:1.4.5 .
+    % cp ../python/dist/petal-1.4.6.tar.gz .
+    % docker build -t pgrps:1.4.6 .
     
         % docker images
         REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-        pgrps               1.4.5               16cfafa9d0f1        12 seconds ago      80.1MB
+        pgrps               1.4.6               16cfafa9d0f1        12 seconds ago      80.1MB
         
     % cd ../../..
     
@@ -136,7 +136,7 @@ hand, instantiate using an interactive shell:
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -it pgrps:1.4.5 /bin/bash
+                 --rm -it pgrps:1.4.6 /bin/bash
 
         # which petl
         /usr/bin/petl
@@ -159,7 +159,7 @@ in the background:
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -d pgrps:1.4.5
+                 --rm -d pgrps:1.4.6
 
 The log output from the "run_petl" invocation should once again wind
 up in the Slack channel associated with the "SLACK_WEBHOOK"
