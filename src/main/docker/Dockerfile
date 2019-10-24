@@ -1,11 +1,11 @@
-FROM alpine:3.8
+FROM alpine:3.10.3
 
-ENV PACKAGES="dumb-init musl bash python3 python3-dev ca-certificates tzdata" \
+ENV PACKAGES="dumb-init bash python3 python3-dev ca-certificates tzdata" \
     LDAP_PASSWD="***supply at runtime***" \
     GROUPER_PASSWD="***supply at runtime***" \
     SLACK_WEBHOOK="***supply at runtime***"
 
-ADD petal-1.4.6.tar.gz /var/tmp
+ADD petal-1.5.0.tar.gz /var/tmp
 ADD run_petl /etc/periodic/daily
 
 RUN echo \
@@ -13,18 +13,12 @@ RUN echo \
   # set installed script as executable
   && chmod +x /etc/periodic/daily/run_petl \
   #
-  # add edge repositories
-  && echo "@edge-testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-  && echo "@edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
-  && echo "@edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
-  #
   # add packages
   && apk add --no-cache $PACKAGES \
   #
   # add symlinks
   && if [[ ! -e /usr/bin/python ]];        then ln -sf /usr/bin/python3 /usr/bin/python; fi \
   && if [[ ! -e /usr/bin/python-config ]]; then ln -sf /usr/bin/python3-config /usr/bin/python-config; fi \
-  && if [[ ! -e /usr/bin/idle ]];          then ln -sf /usr/bin/idle3 /usr/bin/idle; fi \
   && if [[ ! -e /usr/bin/pydoc ]];         then ln -sf /usr/bin/pydoc3 /usr/bin/pydoc; fi \
   && if [[ ! -e /usr/bin/pip ]];           then ln -sf /usr/bin/pip3 /usr/bin/pip; fi \
   #
@@ -33,8 +27,8 @@ RUN echo \
   && echo "US/Arizona" >  /etc/timezone \
   #
   # install petal
-  && pip install --trusted-host pypi.python.org -r /var/tmp/petal-1.4.6/requirements.txt \
-  && pip install /var/tmp/petal-1.4.6
+  && pip install --trusted-host pypi.python.org -r /var/tmp/petal-1.5.0/requirements.txt \
+  && pip install /var/tmp/petal-1.5.0
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/usr/sbin/crond", "-f" ]

@@ -32,8 +32,10 @@ if __name__ == '__main__':
     parser.add_argument( '--grouper_stem', help = 'stem for Grouper query and update' )
     parser.add_argument( '--grouper_group', help = 'group for Grouper query and update' )
     parser.add_argument( '--batch_size', help = 'synchronization batch size' )
-    parser.add_argument( '--batch_timeout', help = 'synchronization batch timeout in seconds')
+    parser.add_argument( '--batch_timeout', help = 'synchronization batch timeout in seconds' )
+    parser.add_argument( '--batch_delay', help = 'delay between batches in seconds' )
     parser.add_argument( '--sync', action = 'store_true', help = 'perform synchronization' )
+    parser.add_argument( '--sync_max', help = 'maximum membership delta to allow when synchronizing' )
     parser.add_argument( '--debug', action = 'store_true', help = 'turn on debug logging' )
     parser.add_argument( '--slack', help = 'redirect logging to Slack webhook' )
     args = parser.parse_args()
@@ -63,7 +65,6 @@ if __name__ == '__main__':
         logger.setLevel( logging.INFO )
         petal.logger.setLevel( logging.INFO )
 
-
     #
     # tag top of run
     
@@ -82,7 +83,7 @@ if __name__ == '__main__':
     vargs = vars( args )
     for p in [ 'ldap_host', 'ldap_base_dn', 'ldap_user', 'ldap_passwd', 'ldap_query',
                'grouper_host', 'grouper_base_path', 'grouper_user', 'grouper_passwd', 'grouper_stem', 'grouper_group',
-               'batch_size', 'batch_timeout' ]:
+               'batch_size', 'batch_timeout', 'batch_delay', 'sync_max' ]:
 
         if ( p in vargs ) and ( vargs[p] is not None ):
             vargs[p] = vargs[p]
@@ -131,7 +132,9 @@ if __name__ == '__main__':
     d = petal.Delta( ldap_query_instance = lq,
                      grouper_query_instance = gq,
                      batch_size = int( vargs['batch_size'] ),
-                     batch_timeout = int( vargs['batch_timeout'] ) )
+                     batch_timeout = int( vargs['batch_timeout'] ),
+                     batch_delay = int( vargs['batch_delay'] ),
+                     sync_max = int( vargs['sync_max'] ) )
     logger.info( 'ldap and grouper have %d members in common', len( d.common ) )
     logger.info( 'synchronization will drop %d entries from grouper group', len( d.drops ) )
     logger.info( 'synchronization will add %d entries to grouper group', len( d.adds ) )

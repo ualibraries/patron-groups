@@ -45,8 +45,8 @@ environment using something like [PyEnv][pyenv] and
     
         [ added shim lines to shell startup files as instructed by installation output ]
         
-	% pyenv install 3.7.2
-    % pyenv virtualenv 3.7.2 ual-patron-groups
+    % pyenv install 3.7.4
+    % pyenv virtualenv 3.7.4 ual-patron-groups
     % pyenv global ual-patron-groups
     
         % which python
@@ -56,7 +56,7 @@ environment using something like [PyEnv][pyenv] and
         /Users/mgsimpson/.pyenv/versions/ual-patron-groups/bin/python
 
         % python --version
-        Python 3.7.2
+        Python 3.7.4
 
 ### Docker
 
@@ -70,7 +70,7 @@ instructions for your OS on the Docker website, e.g. on macOS:
         /usr/local/bin/docker
         
         % docker --version
-		Docker version 18.09.1, build 4c52b90
+        Docker version 19.03.4, build 9013bf5
 
 ### Source
 
@@ -95,7 +95,7 @@ prerequisites, and then build a source distribution of the module:
     % python setup.py sdist
     
         % ls dist
-        petal-1.4.6.tar.gz
+        petal-1.5.0.tar.gz
         
     % cd ../../..
     
@@ -105,12 +105,12 @@ Change to the Docker source directory, copy the distribution file over
 from the Python side, and build the Docker container image:
 
     % cd src/main/docker
-    % cp ../python/dist/petal-1.4.6.tar.gz .
-    % docker build -t pgrps:1.4.6 .
+    % cp ../python/dist/petal-1.5.0.tar.gz .
+    % docker build -t pgrps:1.5.0 .
     
         % docker images
         REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-        pgrps               1.4.6               16cfafa9d0f1        12 seconds ago      80.1MB
+        pgrps               1.5.0               16cfafa9d0f1        12 seconds ago      80.1MB
         
     % cd ../../..
     
@@ -136,7 +136,7 @@ hand, instantiate using an interactive shell:
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -it pgrps:1.4.6 /bin/bash
+                 --rm -it pgrps:1.5.0 /bin/bash
 
         # which petl
         /usr/bin/petl
@@ -159,7 +159,7 @@ in the background:
     % docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                  -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                  -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                 --rm -d pgrps:1.4.6
+                 --rm -d pgrps:1.5.0
 
 The log output from the "run_petl" invocation should once again wind
 up in the Slack channel associated with the "SLACK_WEBHOOK"

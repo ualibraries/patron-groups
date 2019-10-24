@@ -2,18 +2,21 @@ import datetime
 import json
 import logging
 import requests
+import time
 
 logger = logging.getLogger( __name__ )
 
 class Delta( object ):
     
-    def __init__( self, ldap_query_instance, grouper_query_instance, batch_size, batch_timeout ):
+    def __init__( self, ldap_query_instance, grouper_query_instance, batch_size, batch_timeout, batch_delay, sync_max ):
         logger.debug( 'entered' )
         
         self.ldap_query_instance = ldap_query_instance
         self.grouper_query_instance = grouper_query_instance
         self.batch_size = batch_size
         self.batch_timeout = batch_timeout
+        self.batch_delay = batch_delay
+        self.sync_max = sync_max
 
         logger.debug( 'returning' )
         return
@@ -48,8 +51,14 @@ class Delta( object ):
     def synchronize( self ):
         logger.debug( 'entered' )
 
+        total_delta = len( list( self.adds ) ) + len( list( self.drops ) )
+        if total_delta > self.sync_max:
+            logger.warn( 'total delta (%d) exceeds maximum sync limit (%d), will not synchronize' % ( total_delta, self.sync_max ) )
+            logger.debug( 'returning' )
+            return
+
         logger.info( 'synchronizing ldap query results to %s' % ( self.grouper_query_instance.grouper_group ) )
-        logger.info( 'batch size = %d, batch timeout = %d seconds' % ( self.batch_size, self.batch_timeout ) )
+        logger.info( 'batch size = %d, batch timeout = %d seconds, batch delay = %d seconds' % ( self.batch_size, self.batch_timeout, self.batch_delay ) )
 
         logger.info( 'processing drops:' )
         n_batches = 0
@@ -78,6 +87,10 @@ class Delta( object ):
             else:
                 logger.info( 'dropped batch %d, %d entries, %d seconds' % ( n_batches, len( batch ), batch_t ) )
 
+            if self.batch_delay > 0:
+                logger.info( 'pausing for %d seconds' % ( self.batch_delay ) )
+                time.sleep( self.batch_delay )
+
         logger.info( 'processing adds:' )
         n_batches = 0
         list_of_adds = list( self.adds )
@@ -105,6 +118,9 @@ class Delta( object ):
             else:
                 logger.info( 'added batch %d, %d entries, %d seconds' % ( n_batches, len( batch ), batch_t ) )
 
+            if self.batch_delay > 0:
+                logger.info( 'pausing for %d seconds' % ( self.batch_delay ) )
+                time.sleep( self.batch_delay )
+                
         logger.debug( 'returning' )
         return
-    

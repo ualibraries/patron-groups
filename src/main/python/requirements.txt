@@ -1,4 +1,4 @@
-certifi==2018.11.29
-ldap3==2.5.2
-requests==2.21.0
+certifi==2019.9.11
+ldap3==2.6.1
+requests==2.22.0
 slack_log_handler==0.3.0
