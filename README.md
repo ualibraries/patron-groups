@@ -183,3 +183,7 @@ Mike Simpson, mgsimpson@email.arizona.edu
 [homebrew]: https://brew.sh/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
+
+## Documentation
+
+![Service architecture](docs/patron-groups-service-architecture.svg)
