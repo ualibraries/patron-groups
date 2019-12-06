@@ -29,6 +29,8 @@ complexity of "who gets access to what" as simple authorization
 attributes based on group membership -- should hopefully be broadly
 applicable to other use cases in the future.
 
+![Service architecture](docs/patron-groups-service-architecture.svg)
+
 ## Setup
 
 ### Python
@@ -183,7 +185,3 @@ Mike Simpson, mgsimpson@email.arizona.edu
 [homebrew]: https://brew.sh/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
-
-## Documentation
-
-![Service architecture](docs/patron-groups-service-architecture.svg)
