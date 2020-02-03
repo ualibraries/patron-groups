@@ -118,7 +118,7 @@ In a terminal window on my local workstation:
         
             $ git clone https://github.com/ualibraries/patron-groups.git ual-patron-groups
             $ cd ual-patron-groups
-            $ git checkout v1.5.3
+            $ git checkout v1.5.4
             
             $ cd src/main/python
             $ sudo pip3 install --trusted-host pypi.python.org -r requirements.txt
@@ -126,8 +126,8 @@ In a terminal window on my local workstation:
             $ cd ../../..
             
             $ cd src/main/docker
-            $ cp ../python/dist/petal-1.5.3.tar.gz .
-            $ docker build -t pgrps:1.5.3 .
+            $ cp ../python/dist/petal-1.5.4.tar.gz .
+            $ docker build -t pgrps:1.5.4 .
             $ cd ../../..
 
             $ export LDAP_PASSWD=[ldap password]
@@ -136,4 +136,4 @@ In a terminal window on my local workstation:
             $ docker run -e "LDAP_PASSWD=${LDAP_PASSWD}" \
                          -e "GROUPER_PASSWD=${GROUPER_PASSWD}" \
                          -e "SLACK_WEBHOOK=${SLACK_WEBHOOK}" \
-                         --rm -d pgrps:1.5.3
+                         --rm -d pgrps:1.5.4
