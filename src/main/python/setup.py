@@ -11,7 +11,7 @@ setup(
         'scripts/petl',
     ],
     data_files           = [
-        ( '/etc/petal', [ 'config/incommon_rsa_ca_bundle.pem', 
+        ( 'cfg', [ 'config/incommon_rsa_ca_bundle.pem', 
                           'config/petl.ini' ] ),
     ],
 
