@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo -e "This script helps install pyenv on your computer (Debian or MacOS)... "
-echo -e "You'll be asked to add a few lines to your shell profile when done... \n\n"
+echo -e "\n\nThis script helps install pyenv on your computer (Debian or MacOS)... \n\n"
 
 sleep 7 # give folks time to read...
 
@@ -16,11 +15,6 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then # MacOS
     brew update
     brew install openssl readline sqlite3 xz zlib
 
-    # necessary to add headers for newer MacOS (>=10.14)
-    sudo installer -pkg \
-        /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg \
-        -target /
-
 elif [[ "$OSTYPE" == "linux-musl"* ]]; then # Alpine Linux
     apk add libffi-dev ncurses-dev openssl-dev readline-dev \
         tk-dev xz-dev zlib-dev
@@ -32,3 +26,11 @@ else
 fi
 
 curl https://pyenv.run | bash
+
+# add pyenv scripting to user profile (this is portable across zsh bash etc. - hopefully)
+echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.profile
+echo 'eval "$(pyenv init -)"' >> ~/.profile
+echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.profile
+echo 'export PYENV_VIRTUALENVWRAPPER_PREFER_PYVENV="true"' >> ~/.profile
+
+exec "$SHELL"
