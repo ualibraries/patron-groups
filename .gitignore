@@ -1,12 +1,5 @@
-/SCRATCH.md
-/SCRATCH.md~
-/.gradle
-/.project
-/.pydevproject
-/.python-version
+.env
+/venv
 /src/main/python/dist
 /src/main/python/src/petal/__pycache__
 /src/main/python/src/petal.egg-info
-/src/main/docker/petal-*.tar.gz
-/PatronETL.pem
-*.DS_Store
