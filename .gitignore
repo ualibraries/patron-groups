@@ -1,5 +1,4 @@
 .env
-/venv
 /src/main/python/dist
 /src/main/python/src/petal/__pycache__
 /src/main/python/src/petal.egg-info
