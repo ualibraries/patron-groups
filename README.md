@@ -22,22 +22,23 @@ applicable to other use cases in the future.
 ### Dev install, build, and testing
 
 We want to avoid polluting our system-level Python environment, so we install a local
-environment using [PyEnv][pyenv] and [PyEnv-Virtualenv][pyenv-virtualenv]. For now, this repo supports scripted installation on MacOS, Debian Linux, and Alpine Linux.
+environment using [PyEnv][pyenv] and [PyEnv-Virtualenv][pyenv-virtualenv]. For now, this repo supports scripted installation of Pyenv on MacOS, Debian Linux, and Alpine Linux.
 
-The required python version (as set in the production server) is found in the .python-version file in the root of the project. The python interpreter is only installed locally, and gets automagically used when the user's terminal session enters the project directory. *Therefore it is necessary to change directory into the project to later run PG scripts.*
+The required python version (as set in the production server) is found in the .python-version file in the root of the project. The python interpreter is only installed locally, and gets automagically used when the user's terminal session enters the project directory. *Therefore it is necessary to change directory into the project to later run development PG scripts.*
 
-* Install pyenv with `./install.sh`.
+* Checkout the repo files and change directory into the project root.
+* Install pyenv with `./install.sh`. This checks for Pyenv, installs if it's not there. It may also ask the user to update their shell profile to use pyenv.
 * Build the virtual environment and add the Patron Groups package with `./build.sh`, enter "dev" at the prompt.
 * Copy the .env_dist file to .env, then fill in the passwords with the correct credentials, probably located in Stache.
-* Finally, test the scripts with `./run_petl_dev.sh`
+* Finally, test the scripts with `./run_petl_dev.sh`.
 
 ### Production
 
-Production petl.library.arizona.edu runs the Patron Groups scripts nightly with a cron job.
+Production petl.library.arizona.edu will run the Patron Groups scripts daily with a cron job.
 
-The production environment is different because it uses the system installed Python globally. Packages need to be updated using sudo permissions. There is no virtual environment to run the scripts from, and the `petal` package is "compiled" using the regular Python distribution. For this simple server setup, the user needs to SSH in to petl.library.arizona.edu.
+The production environment is different because it uses a global Python interpreter. Therefore, packages need to be updated using sudo permissions. There is no virtual environment to run the scripts from, and the `petal` package is "compiled" using the regular Python distribution. For this simple server setup, the user needs to SSH in to petl.library.arizona.edu.
 
-* `cd /usr/local/ual-patron-groups/`
+* Change directory into `/usr/local/ual-patron-groups/`
 * Run `./build.sh`, enter "prod" at the prompt.
 
 ## Maintainers
