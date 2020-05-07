@@ -6,14 +6,17 @@ echo -e "It may take a while & you may have to answer some questions. Prepare yo
 function add_pyenv_path() {
     # add pyenv scripting to user profile (this is portable across zsh bash etc. - hopefully)
     echo -e "\n\n\n" >> ~/.profile
-    cat >> 'ADDLINES'
-        # ===== BEGIN PYENV STUFF =====
-        export PATH="$HOME/.pyenv/bin:$PATH"
-        eval "$(pyenv init -)"
-        eval "$(pyenv virtualenv-init -)"
-        export PYENV_VIRTUALENVWRAPPER_PREFER_PYVENV="true"
-        # ===== END PYENV STUFF =====
-    ADDLINES >> ~/.profile
+
+cat << 'eof' >> ~/.profile
+# ===== BEGIN PYENV STUFF =====
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+export PYENV_VIRTUALENVWRAPPER_PREFER_PYVENV="true"
+# ===== END PYENV STUFF =====
+eof
+
+    source ~/.profile
 }
 
 # load all the ingredients to install pyenv
@@ -59,7 +62,11 @@ fi
 # check for user shell profile
 if [[ ! -f ~/.profile ]]; then
 
-    { touch ~/.profile && add_pyenv_path } || { # try to create the .profile or give user hints
+    if [ touch ~/.profile ]; then
+	add_pyenv_path
+	echo -e "User .profile added to shell configuration.\n\n"
+    else
+	# try to create the .profile or give user hints
         echo -e "Please create a user .profile and append the following lines to user .bashrc or .zshrc... \n\n"
         cat >> 'ADDLINES'
             export PATH="$HOME/.pyenv/bin:$PATH"
@@ -68,9 +75,8 @@ if [[ ! -f ~/.profile ]]; then
             export PYENV_VIRTUALENVWRAPPER_PREFER_PYVENV="true"
         ADDLINES
         exit 1
-    }
+    fi
     
-
 else
 
     add_pyenv_path
@@ -79,3 +85,4 @@ fi
 
 # restart the session to reload user environment - WARNING: nothing will run after this line!
 exec $SHELL -l
+
