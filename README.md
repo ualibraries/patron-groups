@@ -2,20 +2,9 @@
 
 ## Overview
 
-The first piece is a small, quick [Python][python] hack that
-synchronizes [LDAP][ldap] queries against UA's Enterprise
-Directory Service ("EDS") into [Grouper][grouper] groups living in
-UA's central Grouper service.  In the original use case, those
-group memberships then show up as "isMemberOf" attributes in the
-information returned from a successful [Shibboleth][shibboleth]
-authentication; vendors running Shib-aware services can then use
-the "isMemberOf" information to make authorization and access
-control decisions.
+The software is a small, quick [Python][python] hack that synchronizes [LDAP][ldap] queries against UA's Enterprise Directory Service ("EDS") into [Grouper][grouper] groups living in UA's central Grouper service.  In the original use case, those group memberships then show up as "isMemberOf" attributes in the information returned from a successful [Shibboleth][shibboleth] authentication; vendors running Shib-aware services can then use the "isMemberOf" information to make authorization and access control decisions.
 
-Note that the general principle behind this project -- exposing the
-complexity of "who gets access to what" as simple authorization
-attributes based on group membership -- should hopefully be broadly
-applicable to other use cases in the future.
+Note that the general principle behind this project -- exposing the complexity of "who gets access to what" as simple authorization attributes based on group membership -- should hopefully be broadly applicable to other use cases in the future.
 
 ## Setup
 
