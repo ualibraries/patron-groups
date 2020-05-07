@@ -17,6 +17,8 @@ function git_install_tag {
 }
 
 if [[ $VAR == "dev"* ]]; then
+    echo -e "We need to install and compile Python. Prepare for more boredom... \n\n"
+    
     pyenv_version=$( head -n 1 ./.python-version ) # get the prod version for local dev
     pyenv install $pyenv_version
 
@@ -35,12 +37,12 @@ if [[ $VAR == "dev"* ]]; then
     pip install --trusted-host pypi.python.org -r requirements.txt
     pip install -e . # install editable package with dependencies
 
-    echo -e "The Patron Groups package has now been installed locally. \n
-            Run './run_petl_dev.sh' to test functionality.\n\n"
+    echo -e "The Patron Groups package has now been installed locally. \n"
+    echo -e "See the README for more information about using this for development.\n\n"
 
 elif [[ $VAR == "prod"* ]]; then
     # TODO: WIP!!!
-    # actual deployment of package to global pip
+    # actual deployment of package to global python3/pip3 production environment
 
     echo "Deploying the Patron Groups package... "
 
@@ -58,5 +60,4 @@ elif [[ $VAR == "prod"* ]]; then
 
 else
     echo "Usage: enter \"dev\" to build local virtualenv or \"prod\" to build tagged version... \n"
-
 fi
