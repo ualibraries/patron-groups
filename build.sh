@@ -6,19 +6,13 @@
 
 # see install_pyenv.sh to install pyenv or https://realpython.com/intro-to-pyenv/
 
-
 echo -n "Enter \"dev\" or \"prod\" for package build: "
 read VAR
 
-function git_install_tag {
-    latest_tag=$( git describe --tags `git rev-list --tags --max-count=1` )
-    git fetch --tags
-    git checkout $latest_tag
-}
-
 if [[ $VAR == "dev"* ]]; then
+
     echo -e "We need to install and compile Python. Prepare for more boredom... \n\n"
-    
+
     pyenv_version=$( head -n 1 ./.python-version ) # get the prod version for local dev
     pyenv install $pyenv_version
 
@@ -27,11 +21,11 @@ if [[ $VAR == "dev"* ]]; then
     python_version=$( python -V )
     echo -e "Current Python version is $python_version ...\n"
 
-    # upgrade pip
-    pip install wheel # weird, pyenv's pip doesn't include this?
-    pip install --upgrade pip
+    # upgrade pip (note this is local pip, not using pip3 alias)
+    pip install wheel # weird, pyenv's pip doesn't include wheel?
+    pip install --upgrade pip # this can get out of date
 
-    # install package in dev mode
+    # install petal package in dev mode
     echo -e "Installing the Patron Groups package in editable (dev) mode... \n"
     cd src/main/python
     pip install --trusted-host pypi.python.org -r requirements.txt
@@ -41,23 +35,44 @@ if [[ $VAR == "dev"* ]]; then
     echo -e "See the README for more information about using this for development.\n\n"
 
 elif [[ $VAR == "prod"* ]]; then
+
     # TODO: WIP!!!
     # actual deployment of package to global python3/pip3 production environment
 
     echo "Deploying the Patron Groups package... "
 
-    # # git pull last tag
-    git_install_tag
+    # pull latest tag and checkout
+    latest_tag=$( git describe --tags `git rev-list --tags --max-count=1` )
+    git fetch --tags
+    git checkout $latest_tag
 
-    # install package in production
+    # we'll always run reqs install in case they change
     cd src/main/python
     sudo pip3 install --trusted-host pypi.python.org -r requirements.txt
-    python3 setup.py sdist # creates distribution package
+    python3 setup.py sdist # create regular distribution package
 
     # get version from src/petal/__init__.py::__version__
-    # pgrps_version=$( grep -oP "^__version__ = ['\"]([^'\"]*)['\"]" ./src/petal/__init__.py )
-    # pip install absolute path to PG package
+    version_line=$( head -n 1 ./src/petal/__init__.py )
+    regex="^__version__ = ['\"]([^'\"]*)['\"]"
+
+    if [[ $version_line =~ $regex ]]; then # bash native regex matching, don't need grep/sed
+        
+        version_string="${BASH_REMATCH[1]}"
+        echo -e "Current package version is ${version_string} \n\n"
+        # uninstall old petal package
+        sudo pip3 uninstall petal
+        # deploy new petal
+        sudo pip3 install "./dist/petal-${version_string}.tar.gz"
+
+    else
+
+        echo -e "A version number could not be found. Please check src/petal/__init__.py for version information. Exiting...\n\n"
+        exit 1
+        
+    fi
 
 else
+
     echo "Usage: enter \"dev\" to build local virtualenv or \"prod\" to build tagged version... \n"
+
 fi
