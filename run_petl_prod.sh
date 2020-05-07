@@ -8,6 +8,5 @@ do
                   --group ${g} \
                   --ldap_passwd ${PGRPS_LDAP_PASSWD} \
                   --grouper_passwd ${PGRPS_GROUPER_PASSWD} \
-                  --slack ${PGRPS_SLACK_WEBHOOK} \
                   --sync
 done
