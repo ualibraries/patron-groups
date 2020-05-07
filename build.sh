@@ -55,7 +55,7 @@ elif [[ $VAR == "prod"* ]]; then
     version_line=$( head -n 1 ./src/petal/__init__.py )
     regex="^__version__ = ['\"]([^'\"]*)['\"]"
 
-    if [[ $version_line =~ $regex ]]; then # bash native regex matching, don't need grep/sed
+    if [[ $version_line =~ $regex ]]; then # bash native regex matching, doesn't need grep/sed
         
         version_string="${BASH_REMATCH[1]}"
         echo -e "Current package version is ${version_string} \n\n"
@@ -63,6 +63,10 @@ elif [[ $VAR == "prod"* ]]; then
         sudo pip3 uninstall petal
         # deploy new petal
         sudo pip3 install "./dist/petal-${version_string}.tar.gz"
+        # remove dist directory
+        rm -rf ./dist
+
+        echo -e "Installation of petal-${version_string} completed.\n\n"
 
     else
 
