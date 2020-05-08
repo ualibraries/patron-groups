@@ -62,7 +62,7 @@ elif [[ $VAR == "prod"* ]]; then
         # uninstall old petal package
         sudo pip3 uninstall petal
         # deploy new petal
-        sudo pip3 install "./dist/petal-${version_string}.tar.gz"
+	sudo pip3 install "$(pwd)/dist/petal-${version_string}.tar.gz"
         # remove dist directory
         rm -rf ./dist
 
