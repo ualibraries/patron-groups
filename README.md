@@ -21,11 +21,11 @@ The required python version (as set in the production server) is found in the .p
 * Install pyenv with `./install.sh`. This checks for Pyenv, installs if it's not there. It may also ask the user to update their shell profile to use pyenv.
 * Build the virtual environment and add the Patron Groups package with `./build.sh`, enter "dev" at the prompt.
 * Copy the .env_dist file to .env, then fill in the passwords with the correct credentials, probably located in Stache.
-* Finally, test the scripts with `./run_petl_dev.sh`.
+* Finally, test the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
 
 ### Production
 
-Production petl.library.arizona.edu will run the Patron Groups scripts daily with a cron job.
+Production petl.library.arizona.edu will run the Patron Groups scripts daily with a cron job that hits the `run_petl_prod.sh` script (sync is live).
 
 The production environment is different because it uses a global Python interpreter. Therefore, packages need to be updated using sudo permissions. There is no virtual environment to run the scripts from, and the `petal` package is "compiled" using the regular Python distribution. For this simple server setup, the user needs to SSH in to petl.library.arizona.edu.
 
