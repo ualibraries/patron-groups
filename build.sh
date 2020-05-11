@@ -6,7 +6,7 @@
 
 # see install_pyenv.sh to install pyenv or https://realpython.com/intro-to-pyenv/
 
-echo -n "Enter \"dev\" or \"prod\" for package build: "
+echo -e "Enter \"dev\" or \"prod\" for package build: "
 read VAR
 
 if [[ $VAR == "dev"* ]]; then
