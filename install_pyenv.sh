@@ -59,15 +59,14 @@ else
 
 fi
 
-# check for user shell profile
 if [[ ! -f ~/.profile ]]; then
 
     if touch ~/.profile ; then
-	add_pyenv_path
-	echo -e "User .profile added to shell configuration.\n\n"
+        add_pyenv_path
+        echo -e "User .profile added to shell configuration.\n\n"
     else
-	# try to create the .profile or give user hints
-        echo -e "Please create a user .profile and append the following lines to user .bashrc or .zshrc... \n\n"
+	    # try to create the .profile or give user hints
+        echo -e "Please .profile in your user home directory, then append the following lines to it... \n\n"
 cat << 'eof'
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
