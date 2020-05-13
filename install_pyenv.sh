@@ -66,7 +66,7 @@ if [[ ! -f ~/.profile ]]; then
         echo -e "User .profile added to shell configuration.\n\n"
     else
 	    # try to create the .profile or give user hints
-        echo -e "Please .profile in your user home directory, then append the following lines to it... \n\n"
+        echo -e "Please create .profile in your user home directory, then append the following lines to it... \n\n"
 cat << 'eof'
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
