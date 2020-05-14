@@ -9,5 +9,6 @@ do
     python ./src/main/python/scripts/petl --config ./src/main/python/config/petl.ini \
                   --group ${g} \
                   --ldap_passwd ${PGRPS_LDAP_PASSWD} \
-                  --grouper_passwd ${PGRPS_GROUPER_PASSWD}
+                  --grouper_passwd ${PGRPS_GROUPER_PASSWD} \
+                  --debug
 done
