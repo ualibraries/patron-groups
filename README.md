@@ -31,6 +31,12 @@ The production environment is different because it uses a global Python interpre
 
 * Change directory into `/usr/local/ual-patron-groups/`
 * Run `./build.sh`, enter "prod" at the prompt.
+* To test that the build version updated, enter the Python console and enter the following code:
+
+    ```shell
+    >>> import petal
+    >>> help(petal)
+    ```
 
 ## Maintainers
 
