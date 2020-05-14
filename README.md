@@ -18,7 +18,7 @@ environment using [PyEnv][pyenv] and [PyEnv-Virtualenv][pyenv-virtualenv]. For n
 The required python version (as set in the production server) is found in the .python-version file in the root of the project. The python interpreter is only installed locally, and gets automagically used when the user's terminal session enters the project directory. *Therefore it is necessary to change directory into the project to later run development PG scripts.*
 
 * Checkout the repo files and change directory into the project root.
-* Install pyenv with `./install.sh`. This checks for Pyenv, installs if it's not there. It may also ask the user to update their shell profile to use pyenv.
+* Install pyenv with `./install_pyenv.sh`. This checks for Pyenv, installs if it's not there. It may also ask the user to update their shell profile to use pyenv.
 * Build the virtual environment and add the Patron Groups package with `./build.sh`, enter "dev" at the prompt.
 * Copy the .env_dist file to .env, then fill in the passwords with the correct credentials, probably located in Stache.
 * Finally, test the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
@@ -36,17 +36,12 @@ The production environment is different because it uses a global Python interpre
 
 UA Libraries, TeSS-Dev Team
 
-
-
-
 [python]: https://www.python.org/
 [ldap]: https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol
 [grouper]: https://www.internet2.edu/products-services/trust-identity/grouper/
 [shibboleth]: https://shibboleth.net/
-[docker]: https://www.docker.com/
 [alpine]: https://alpinelinux.org/
 [crond]: https://en.wikipedia.org/wiki/Cron
-[gradle]: https://gradle.org/
 [homebrew]: https://brew.sh/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
