@@ -4,6 +4,7 @@ import argparse
 import configparser
 import logging
 import os
+import sys
 
 import ldap3
 import petal
@@ -110,23 +111,39 @@ if __name__ == '__main__':
     #
     # instantiate ldap query object
 
-    lq = petal.LDAPQuery( ldap_host = vargs['ldap_host'],
-                          ldap_base_dn = vargs['ldap_base_dn'],
-                          ldap_user = vargs['ldap_user'],
-                          ldap_passwd = vargs['ldap_passwd'],
-                          ldap_query = vargs['ldap_query'] )
-    logger.info( 'found %d entries via LDAP query', len( lq.members ) )
+    try:
+        lq = petal.LDAPQuery( ldap_host = vargs['ldap_host'],
+                              ldap_base_dn = vargs['ldap_base_dn'],
+                              ldap_user = vargs['ldap_user'],
+                              ldap_passwd = vargs['ldap_passwd'],
+                              ldap_query = vargs['ldap_query'] )
+        logger.info( 'found %d entries via LDAP query', len( lq.members ) )
+    except:
+        if args.slack:
+            logger.error( ':x: unexpected error: `%s`', sys.exc_info()[0] )
+            logger.error( ':x: failed to complete LDAP query for `%s`, exiting ...', args.group )
+            exit( 1 )
+        else:
+            raise
 
     #
     # instantiate grouper query object
 
-    gq = petal.GrouperQuery( grouper_host = vargs['grouper_host'],
-                             grouper_base_path = vargs['grouper_base_path'],
-                             grouper_user = vargs['grouper_user'],
-                             grouper_passwd = vargs['grouper_passwd'],
-                             grouper_stem = vargs['grouper_stem'],
-                             grouper_group = vargs['grouper_group'] )
-    logger.info( 'found %d entries via Grouper query', len( gq.members ) )
+    try:
+        gq = petal.GrouperQuery( grouper_host = vargs['grouper_host'],
+                                 grouper_base_path = vargs['grouper_base_path'],
+                                 grouper_user = vargs['grouper_user'],
+                                 grouper_passwd = vargs['grouper_passwd'],
+                                 grouper_stem = vargs['grouper_stem'],
+                                 grouper_group = vargs['grouper_group'] )
+        logger.info( 'found %d entries via Grouper query', len( gq.members ) )
+    except:
+        if args.slack:
+            logger.error( ':x: unexpected error: `%s`', sys.exc_info()[0] )
+            logger.error( ':x: failed to complete Grouper query for `%s`, exiting ...', args.group )
+            exit( 1 )
+        else:
+            raise
 
     #
     # instantiate delta object
@@ -146,7 +163,16 @@ if __name__ == '__main__':
 
     if args.sync:
         logger.debug( 'synchronizing ...' )
-        d.synchronize()
+
+        try:
+            d.synchronize()
+        except:
+            if args.slack:
+                logger.error( ':x: unexpected error: `%s`', sys.exc_info()[0] )
+                logger.error( ':x: failed to synchronize for `%s`, exiting ...', args.group )
+                exit( 1 )
+            else:
+                raise
     else:
         logger.info( 'dry run, not performing synchronization' )
 
