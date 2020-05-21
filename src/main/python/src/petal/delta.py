@@ -1,16 +1,17 @@
 import datetime
 import json
 import logging
-import requests
 import time
+
+import requests
 
 logger = logging.getLogger( __name__ )
 
 class Delta( object ):
-    
+
     def __init__( self, ldap_query_instance, grouper_query_instance, batch_size, batch_timeout, batch_delay, sync_max ):
         logger.debug( 'entered' )
-        
+
         self.ldap_query_instance = ldap_query_instance
         self.grouper_query_instance = grouper_query_instance
         self.batch_size = batch_size
@@ -20,16 +21,16 @@ class Delta( object ):
 
         logger.debug( 'returning' )
         return
-    
+
     @property
     def common( self ):
         logger.debug( 'entered' )
-        
+
         common = self.ldap_query_instance.members & self.grouper_query_instance.members
-        
+
         logger.debug( 'returning' )
         return common
-    
+
     @property
     def adds( self ):
         logger.debug( 'entered' )
@@ -42,12 +43,12 @@ class Delta( object ):
     @property
     def drops( self ):
         logger.debug( 'entered' )
-        
+
         drops = self.grouper_query_instance.members - self.ldap_query_instance.members
-        
+
         logger.debug( 'returning' )
         return drops
-    
+
     def synchronize( self ):
         logger.debug( 'entered' )
 
@@ -58,14 +59,14 @@ class Delta( object ):
             return
 
         logger.info( 'synchronizing ldap query results to %s' % ( self.grouper_query_instance.grouper_group ) )
-        logger.info( 'batch size = %d, batch timeout = %d seconds, batch delay = %d seconds' % ( self.batch_size, self.batch_timeout, self.batch_delay ) )
+        logger.debug( 'batch size = %d, batch timeout = %d seconds, batch delay = %d seconds' % ( self.batch_size, self.batch_timeout, self.batch_delay ) )
 
-        logger.info( 'processing drops:' )
+        logger.debug( 'processing drops:' )
         n_batches = 0
         list_of_drops = list( self.drops )
         for batch in [ list_of_drops[i:i + self.batch_size] for i in range( 0, len( list_of_drops ), self.batch_size ) ]:
             n_batches += 1
-            
+
             start_t = datetime.datetime.now()
             rsp = requests.post( self.grouper_query_instance.grouper_group_members_url,
                                  auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
@@ -82,7 +83,7 @@ class Delta( object ):
 
             rsp_j = rsp.json()
             if rsp_j['WsDeleteMemberResults']['resultMetadata']['resultCode'] not in ( 'SUCCESS' ):
-                logger.warn( 'problem running batch delete, result code = %s', 
+                logger.warn( 'problem running batch delete, result code = %s',
                              rsp_j['WsDeleteMemberResults']['resultMetadata']['resultCode'] )
             else:
                 logger.info( 'dropped batch %d, %d entries, %d seconds' % ( n_batches, len( batch ), batch_t ) )
@@ -91,12 +92,12 @@ class Delta( object ):
                 logger.info( 'pausing for %d seconds' % ( self.batch_delay ) )
                 time.sleep( self.batch_delay )
 
-        logger.info( 'processing adds:' )
+        logger.debug( 'processing adds:' )
         n_batches = 0
         list_of_adds = list( self.adds )
         for batch in [ list_of_adds[i:i + self.batch_size] for i in range( 0, len( list_of_adds ), self.batch_size ) ]:
             n_batches += 1
-            
+
             start_t = datetime.datetime.now()
             rsp = requests.put( self.grouper_query_instance.grouper_group_members_url,
                                 auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
@@ -110,10 +111,10 @@ class Delta( object ):
                                 timeout = self.batch_timeout )
             end_t = datetime.datetime.now()
             batch_t = ( end_t - start_t ).total_seconds()
-            
+
             rsp_j = rsp.json()
             if rsp_j['WsAddMemberResults']['resultMetadata']['resultCode'] not in ( 'SUCCESS' ):
-                logger.warn( 'problem running batch add, result code = %s', 
+                logger.warn( 'problem running batch add, result code = %s',
                              rsp_j['WsAddMemberResults']['resultMetadata']['resultCode'] )
             else:
                 logger.info( 'added batch %d, %d entries, %d seconds' % ( n_batches, len( batch ), batch_t ) )
@@ -121,6 +122,6 @@ class Delta( object ):
             if self.batch_delay > 0:
                 logger.info( 'pausing for %d seconds' % ( self.batch_delay ) )
                 time.sleep( self.batch_delay )
-                
+
         logger.debug( 'returning' )
         return

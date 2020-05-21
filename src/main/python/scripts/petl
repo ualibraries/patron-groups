@@ -70,10 +70,11 @@ if __name__ == '__main__':
     # tag top of run
 
     if args.slack:
-        logger.info( '----------[ petl script executing ]----------' )
-    logger.info( 'starting run:' )
-    logger.info( '    config = %s', args.config )
-    logger.info( '    group = %s', args.group )
+        logger.info( ':rocket: starting on `%s` group', args.group )
+    else:
+        logger.info( 'starting run:' )
+        logger.info( '    config = %s', args.config )
+        logger.info( '    group = %s', args.group )
 
     #
     # load parameters from specified configuration file, fold into command-line overrides
@@ -144,7 +145,7 @@ if __name__ == '__main__':
     # perform etl operations
 
     if args.sync:
-        logger.info( 'synchronizing ...' )
+        logger.debug( 'synchronizing ...' )
         d.synchronize()
     else:
         logger.info( 'dry run, not performing synchronization' )
@@ -152,8 +153,9 @@ if __name__ == '__main__':
     #
     # exit successfully
 
-    logger.info( 'run complete.' )
     if args.slack:
-        logger.info( '----------[ petl script exiting ]----------' )
+        logger.info( ':tada: finished on `%s` group', args.group )
+    else:
+        logger.info( 'run complete.' )
 
     exit( 0 )

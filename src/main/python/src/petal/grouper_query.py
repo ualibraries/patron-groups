@@ -1,16 +1,17 @@
 import logging
+
 import requests
 
 logger = logging.getLogger( __name__ )
 
 class GrouperQuery( object ):
-    
+
     def __init__( self, grouper_host, grouper_base_path, grouper_user, grouper_passwd, grouper_stem, grouper_group ):
         logger.debug( 'entered' )
 
         #
         # set properties
-        
+
         self.grouper_host = grouper_host
         self.grouper_base_path = grouper_base_path
         self.grouper_user = grouper_user
@@ -23,7 +24,7 @@ class GrouperQuery( object ):
         #
         # execute grouper query and populate members property
 
-        logger.info( 'executing grouper query and compiling members' )
+        logger.debug( 'executing grouper query and compiling members' )
 
         rsp = requests.get( self.grouper_group_members_url, auth = ( grouper_user, grouper_passwd ) )
         if 'wsSubjects' in rsp.json()['WsGetMembersLiteResult']:
@@ -33,7 +34,7 @@ class GrouperQuery( object ):
 
         logger.debug( 'returning' )
         return
-    
+
     @property
     def members( self ):
         logger.debug( 'entered' )
