@@ -21,7 +21,8 @@ The required python version (as set in the production server) is found in the .p
 * Install pyenv with `./install_pyenv.sh`. This checks for Pyenv, installs if it's not there. It may also ask the user to update their shell profile to use pyenv.
 * Build the virtual environment and add the Patron Groups package with `./build.sh`, enter "dev" at the prompt.
 * Copy the .env_dist file to .env, then fill in the passwords with the correct credentials, probably located in Stache.
-* Finally, test the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
+* Test run the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
+* When the development code is ready to be tagged, change the version in `src/main/python/src/petal/__init__.py::__version__`. This property is referenced as the final package version when installed in production. It should be a [SemVer][semver] number format.
 
 ### Production
 
@@ -51,3 +52,4 @@ UA Libraries, TeSS-Dev Team
 [homebrew]: https://brew.sh/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
+[semver]: http://semver.org
