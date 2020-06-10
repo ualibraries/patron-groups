@@ -4,11 +4,12 @@
 
 export $(grep -v '^#' ./.env | xargs) # get env args mentioned below
 
-for g in faculty-base staff-base students-base ugrads-base grads-base dcc-base retirees-base hsl-base law-base
+for g in students-base
 do
     python ./src/main/python/scripts/petl --config ./src/main/python/config/petl.ini \
                   --group ${g} \
                   --ldap_passwd ${PGRPS_LDAP_PASSWD} \
                   --grouper_passwd ${PGRPS_GROUPER_PASSWD} \
+                  --sync_max ${PGRPS_SYNC_MAX} \
                   --debug
 done
