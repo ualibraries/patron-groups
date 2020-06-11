@@ -24,7 +24,7 @@ The required python version (as set in the production server) is found in the .p
 * Test run the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
 * When the development code is ready to be tagged, change the version in `src/main/python/src/petal/__init__.py::__version__`. This property is referenced as the final package version when installed in production. It should be a [SemVer][semver] number format.
 
-### Production
+### Production deployment
 
 Production petl.library.arizona.edu will run the Patron Groups scripts daily with a cron job that hits the `run_petl_prod.sh` script (sync is live).
 
@@ -38,6 +38,94 @@ The production environment is different because it uses a global Python interpre
     >>> import petal
     >>> help(petal)
     ```
+    
+Note: it may be necessary to delete the user cache for the Petal package to install the updated package correctly: `$ rm -rf /home/<user>/.cache`. Git ssh key credentials will also need to be set correctly, or the package will not update.
+    
+## Petl script usage
+
+The `petl` script that serves as the command line wrapper for the petal Python package is located at `src/main/python/scripts/petl`. Several of the usage parameters are set in `run_petl_prod.sh` and `run_petl_dev.sh`, with variables set in the .env file. To run the script by itself, it can be invoked from the project root directory with `$ python src/main/python/scripts/petl`. The following are command params output by the `--help` param from the script:
+
+    ```shell
+    Command-line driver for patron group ETL jobs.
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --config CONFIG       path to configuration file for this ETL run
+    --group GROUP         name of patron group (a.k.a. section) in configuration
+                        file for this ETL run
+    --ldap_host LDAP_HOST
+                        LDAP host
+    --ldap_base_dn LDAP_BASE_DN
+                        base DN for LDAP bind and query
+    --ldap_user LDAP_USER
+                        user name for LDAP login
+    --ldap_passwd LDAP_PASSWD
+                        password for LDAP login
+    --ldap_query LDAP_QUERY
+                        query string for LDAP search
+    --grouper_host GROUPER_HOST
+                        Grouper host
+    --grouper_base_path GROUPER_BASE_PATH
+                        base path for Grouper API
+    --grouper_user GROUPER_USER
+                        user name for Grouper login
+    --grouper_passwd GROUPER_PASSWD
+                        password for Grouper login
+    --grouper_stem GROUPER_STEM
+                        stem for Grouper query and update
+    --grouper_group GROUPER_GROUP
+                        group for Grouper query and update
+    --batch_size BATCH_SIZE
+                        synchronization batch size
+    --batch_timeout BATCH_TIMEOUT
+                        synchronization batch timeout in seconds
+    --batch_delay BATCH_DELAY
+                        delay between batches in seconds
+    --sync                perform synchronization
+    --sync_max SYNC_MAX   maximum membership delta to allow when synchronizing
+    --debug               turn on debug logging
+    --slack SLACK         redirect logging to Slack webhook
+    ```
+    
+## Petal configuration
+
+Package configuration is set in `src/main/python/config/petl.ini`. (While this is the default configuration for the `petl` script, it would be nice to someday be able to load appended override configs from outside the package!) It loads the configuration for each individual Grouper group and enumerates the global defaults for the script if not set in command line arguments. See the header of the `petl.ini` for details: 
+
+```shell
+#
+# Configuration for the "petl" script.
+#
+# Parameters are loaded in the following order:
+#
+#   1. Global defaults.
+#   2. Per-group configurations (will override #1).
+#   3. Command-line parameters (will override #1 and #2).
+#
+
+#
+# Global defaults for all groups.
+#
+
+[global]
+ldap_host         = eds.iam.arizona.edu
+ldap_base_dn      = dc=eds,dc=arizona,dc=edu
+ldap_user         = ual-pgrps
+ldap_passwd       = ***override***
+grouper_host      = grouper.iam.arizona.edu
+grouper_base_path = grouper-ws/servicesRest/json/v2_2_001/groups
+grouper_user      = ual-pgrps
+grouper_passwd    = ***override***
+grouper_stem      = arizona.edu:dept:LBRY:pgrps
+batch_size        = 100
+batch_timeout     = 60
+batch_delay       = 0
+sync_max          = 1000
+
+#
+# Per-group configurations.
+#
+...
+```
 
 ## Maintainers
 
