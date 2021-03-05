@@ -26,7 +26,17 @@ class GrouperQuery( object ):
 
         logger.debug( 'executing grouper query and compiling members' )
 
-        rsp = requests.get( self.grouper_group_members_url, auth = ( grouper_user, grouper_passwd ) )
+        try:
+            rsp = requests.get( self.grouper_group_members_url, auth = ( grouper_user, grouper_passwd ) )
+            rsp.raise_for_status()
+        except requests.exceptions.HTTPError as errh:
+            logger.error( ':x: http error: `%s`', errh )
+            logger.error( ':x: response: `%s`', errh.response.text )
+            raise
+        except requests.exceptions.RequestException as e:
+            logger.error( ':x: error: `%s`', e )
+            raise
+
         if 'wsSubjects' in rsp.json()['WsGetMembersLiteResult']:
             self._members = { s['id'] for s in rsp.json()['WsGetMembersLiteResult']['wsSubjects'] }
         else:

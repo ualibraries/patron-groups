@@ -68,16 +68,25 @@ class Delta( object ):
             n_batches += 1
 
             start_t = datetime.datetime.now()
-            rsp = requests.post( self.grouper_query_instance.grouper_group_members_url,
-                                 auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
-                                 data = json.dumps( {
-                                                        'WsRestDeleteMemberRequest': {
-                                                            'replaceAllExisting': 'F',
-                                                            'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
-                                                         }
-                                                    } ),
-                                 headers = { 'Content-type': 'text/x-json' },
-                                 timeout = self.batch_timeout )
+
+            try:
+                rsp = requests.post( self.grouper_query_instance.grouper_group_members_url,
+                                     auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
+                                     data = json.dumps( {
+                                                            'WsRestDeleteMemberRequest': {
+                                                                'replaceAllExisting': 'F',
+                                                                'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
+                                                            }
+                                                        } ),
+                                     headers = { 'Content-type': 'text/x-json' },
+                                     timeout = self.batch_timeout )
+                rsp.raise_for_status()
+            except requests.exceptions.HTTPError as errh:
+                logger.warn( ':x: http error: `%s`', errh )
+            except requests.exceptions.RequestException as e:
+                logger.error( ':x: error: `%s`', e )
+                raise
+
             end_t = datetime.datetime.now()
             batch_t = ( end_t - start_t ).total_seconds()
 
@@ -99,16 +108,25 @@ class Delta( object ):
             n_batches += 1
 
             start_t = datetime.datetime.now()
-            rsp = requests.put( self.grouper_query_instance.grouper_group_members_url,
-                                auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
-                                data = json.dumps( {
-                                                       'WsRestAddMemberRequest': {
-                                                           'replaceAllExisting': 'F',
-                                                           'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
-                                                        }
-                                                   } ),
-                                headers = { 'Content-type': 'text/x-json' },
-                                timeout = self.batch_timeout )
+
+            try:
+                rsp = requests.put( self.grouper_query_instance.grouper_group_members_url,
+                                    auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
+                                    data = json.dumps( {
+                                                        'WsRestAddMemberRequest': {
+                                                            'replaceAllExisting': 'F',
+                                                            'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
+                                                            }
+                                                    } ),
+                                    headers = { 'Content-type': 'text/x-json' },
+                                    timeout = self.batch_timeout )
+                rsp.raise_for_status()
+            except requests.exceptions.HTTPError as errh:
+                logger.warn( ':x: http error: `%s`', errh )
+            except requests.exceptions.RequestException as e:
+                logger.error( ':x: error: `%s`', e )
+                raise
+
             end_t = datetime.datetime.now()
             batch_t = ( end_t - start_t ).total_seconds()
 
@@ -116,6 +134,14 @@ class Delta( object ):
             if rsp_j['WsAddMemberResults']['resultMetadata']['resultCode'] not in ( 'SUCCESS' ):
                 logger.warn( 'problem running batch add, result code = %s',
                              rsp_j['WsAddMemberResults']['resultMetadata']['resultCode'] )
+                logger.warn( 'result message: %s',
+                             rsp_j['WsAddMemberResults']['resultMetadata']['resultMessage'] )
+
+                logger.warn( '  failures:')
+                for result in rsp_j['WsAddMemberResults']['results']:
+                    if result['resultMetadata']['resultCode'] not in ( 'SUCCESS' ):
+                        logger.warn( '    %s', result['wsSubject']['id'] )
+
             else:
                 logger.info( 'added batch %d, %d entries, %d seconds' % ( n_batches, len( batch ), batch_t ) )
 
