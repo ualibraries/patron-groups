@@ -45,6 +45,14 @@ if __name__ == '__main__':
     #
     # setup logging
 
+    # Dev users to ping when there's an error.
+    # Must use your member id by going to your profile in Slack.
+    ping_users = [
+        "<@U02B4KAB7>", # Mike Hagedon
+        "<@U049D4UB9>", # Andy Osborne
+    ]
+    ping_usr_str = " ".join(ping_users)
+
     logger = logging.getLogger( __name__ )
     if args.slack:
         handler = slack_log_handler.SlackLogHandler( args.slack, username = 'petl' )
@@ -120,7 +128,7 @@ if __name__ == '__main__':
         logger.info( 'found %d entries via LDAP query', len( lq.members ) )
     except:
         if args.slack:
-            logger.error( ':x: @TeSS-Dev unexpected error: `%s`', sys.exc_info()[0] )
+            logger.error( ':x: %s unexpected error: `%s`', ping_usr_str, sys.exc_info()[0] )
             logger.error( ':x: failed to complete LDAP query for `%s`, exiting ...', args.group )
             exit( 1 )
         else:
@@ -139,7 +147,7 @@ if __name__ == '__main__':
         logger.info( 'found %d entries via Grouper query', len( gq.members ) )
     except:
         if args.slack:
-            logger.error( ':x: @TeSS-Dev unexpected error: `%s`', sys.exc_info()[0] )
+            logger.error( ':x: %s unexpected error: `%s`', ping_usr_str, sys.exc_info()[0] )
             logger.error( ':x: failed to complete Grouper query for `%s`, exiting ...', args.group )
             exit( 1 )
         else:
@@ -168,7 +176,7 @@ if __name__ == '__main__':
             d.synchronize()
         except:
             if args.slack:
-                logger.error( ':x: @TeSS-Dev unexpected error: `%s`', sys.exc_info()[0] )
+                logger.error( ':x: %s unexpected error: `%s`', ping_usr_str, sys.exc_info()[0] )
                 logger.error( ':x: failed to synchronize for `%s`, exiting ...', args.group )
                 exit( 1 )
             else:
