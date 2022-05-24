@@ -9,6 +9,7 @@ do
                   --ldap_passwd ${PGRPS_LDAP_PASSWD} \
                   --grouper_passwd ${PGRPS_GROUPER_PASSWD} \
                   --slack ${PGRPS_SLACK_WEBHOOK} \
+                  --slack_ping_users ${SLACK_PING_USERS} \
                   --sync_max ${PGRPS_SYNC_MAX} \
                   --sync
 done
