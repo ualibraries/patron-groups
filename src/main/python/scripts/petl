@@ -120,7 +120,7 @@ if __name__ == '__main__':
         logger.info( 'found %d entries via LDAP query', len( lq.members ) )
     except:
         if args.slack:
-            logger.error( ':x: unexpected error: `%s`', sys.exc_info()[0] )
+            logger.error( ':x: @TeSS-Dev unexpected error: `%s`', sys.exc_info()[0] )
             logger.error( ':x: failed to complete LDAP query for `%s`, exiting ...', args.group )
             exit( 1 )
         else:
@@ -139,7 +139,7 @@ if __name__ == '__main__':
         logger.info( 'found %d entries via Grouper query', len( gq.members ) )
     except:
         if args.slack:
-            logger.error( ':x: unexpected error: `%s`', sys.exc_info()[0] )
+            logger.error( ':x: @TeSS-Dev unexpected error: `%s`', sys.exc_info()[0] )
             logger.error( ':x: failed to complete Grouper query for `%s`, exiting ...', args.group )
             exit( 1 )
         else:
@@ -168,7 +168,7 @@ if __name__ == '__main__':
             d.synchronize()
         except:
             if args.slack:
-                logger.error( ':x: unexpected error: `%s`', sys.exc_info()[0] )
+                logger.error( ':x: @TeSS-Dev unexpected error: `%s`', sys.exc_info()[0] )
                 logger.error( ':x: failed to synchronize for `%s`, exiting ...', args.group )
                 exit( 1 )
             else:
