@@ -74,7 +74,6 @@ class Delta( object ):
                                      auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
                                      data = json.dumps( {
                                                             'WsRestDeleteMemberRequest': {
-                                                                'replaceAllExisting': 'F',
                                                                 'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
                                                             }
                                                         } ),
@@ -114,7 +113,6 @@ class Delta( object ):
                                     auth = ( self.grouper_query_instance.grouper_user, self.grouper_query_instance.grouper_passwd ),
                                     data = json.dumps( {
                                                         'WsRestAddMemberRequest': {
-                                                            'replaceAllExisting': 'F',
                                                             'subjectLookups': [ { 'subjectId': entry } for entry in batch ]
                                                             }
                                                     } ),
