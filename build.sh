@@ -42,8 +42,9 @@ elif [[ $VAR == "prod"* ]]; then
     echo "Deploying the Patron Groups package... "
 
     # pull latest tag and checkout
-    latest_tag=$( git describe --tags `git rev-list --tags --max-count=1` )
     git fetch --tags
+    latest_tag=$( git describe --tags `git rev-list --tags --max-count=1` )
+
     git checkout $latest_tag
 
     # we'll always run reqs install in case they change
