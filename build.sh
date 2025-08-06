@@ -15,65 +15,58 @@ if [[ $VAR == "dev"* ]]; then
 
     pyenv_version=$( head -n 1 ./.python-version ) # get the prod version for local dev
     pyenv install $pyenv_version
-
-    # create our virtualenv
-    pyenv virtualenv pgrps-venv
     python_version=$( python -V )
     echo -e "Current Python version is $python_version ...\n"
 
-    # upgrade pip (note this is local pip, not using pip3 alias)
-    pip install wheel # weird, pyenv's pip doesn't include wheel?
-    pip install --upgrade pip # this can get out of date
+    pip install --upgrade pip
+    pip install pipx
+    pipx ensurepath
+    pipx install poetry
 
-    # install petal package in dev mode
-    echo -e "Installing the Patron Groups package in editable (dev) mode... \n"
-    cd src/main/python
-    pip install --trusted-host pypi.python.org -r requirements.txt
-    pip install -e . # install editable package with dependencies
+    poetry env remove python
+    poetry install --sync # only install necessary deps
 
     echo -e "The Patron Groups package has now been installed locally. \n"
     echo -e "See the README for more information about using this for development.\n\n"
 
 elif [[ $VAR == "prod"* ]]; then
 
-    # TODO: WIP!!!
-    # actual deployment of package to global python3/pip3 production environment
+    source ~/.profile
 
     echo "Deploying the Patron Groups package... "
 
     # pull latest tag and checkout
     git fetch --tags
     latest_tag=$( git describe --tags `git rev-list --tags --max-count=1` )
-
     git checkout $latest_tag
 
-    # we'll always run reqs install in case they change
-    cd src/main/python
-    sudo pip3 install --trusted-host pypi.python.org -r requirements.txt
-    python3 setup.py sdist # create regular distribution package
+    poetry build
 
-    # get version from src/petal/__init__.py::__version__
-    version_line=$( head -n 1 ./src/petal/__init__.py )
-    regex="^__version__ = ['\"]([^'\"]*)['\"]"
+    # get version from pyproject.toml
+    version_line=$( sed '3q;d' ./pyproject.toml )
+    regex="^version = ['\"]([^'\"]*)['\"]"
 
     if [[ $version_line =~ $regex ]]; then # bash native regex matching, doesn't need grep/sed
-        
+
+        echo "Upgrading pip first..."
+        pip install --upgrade pip
+
         version_string="${BASH_REMATCH[1]}"
         echo -e "Current package version is ${version_string} \n\n"
         # uninstall old petal package
-        sudo pip3 uninstall petal
-        # deploy new petal
-	sudo pip3 install "$(pwd)/dist/petal-${version_string}.tar.gz"
+        pip uninstall -y petal
+        pip uninstall -y patron_groups
+	    sudo pip3 install "$(pwd)/dist/patron_groups-${version_string}.tar.gz"
         # remove dist directory
         rm -rf ./dist
 
-        echo -e "Installation of petal-${version_string} completed.\n\n"
+        echo -e "Installation of patron_groups-${version_string} completed.\n\n"
 
     else
 
-        echo -e "A version number could not be found. Please check src/petal/__init__.py for version information. Exiting...\n\n"
+        echo -e "A version number could not be found. Please check pyproject.toml for version information. Exiting...\n\n"
         exit 1
-        
+
     fi
 
 else
