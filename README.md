@@ -22,28 +22,25 @@ The required python version (as set in the production server) is found in the .p
 * Build the virtual environment and add the Patron Groups package with `./build.sh`, enter "dev" at the prompt.
 * Copy the .env_dist file to .env, then fill in the passwords with the correct credentials, probably located in Stache.
 * Test run the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
-* When the development code is ready to be tagged, change the version in `src/main/python/src/petal/__init__.py::__version__`. This property is referenced as the final package version when installed in production. It should be a [SemVer][semver] number format.
+* When the development code is ready to be tagged, change the version in `pyproject.toml`. This property is referenced as the final package version when installed in production. It should be a [SemVer][semver] number format.
 
 ### Production deployment
 
 Production petl.library.arizona.edu will run the Patron Groups scripts daily with a cron job that hits the `run_petl_prod.sh` script (sync is live).
 
-The production environment is different because it uses a global Python interpreter. Therefore, packages need to be updated using sudo permissions. There is no virtual environment to run the scripts from, and the `petal` package is "compiled" using the regular Python distribution. For this simple server setup, the user needs to SSH in to petl.library.arizona.edu.
-
+* The user needs to SSH in to petl.library.arizona.edu.
 * Change directory into `/usr/local/ual-patron-groups/`
 * Run `./build.sh`, enter "prod" at the prompt.
 * To test that the build version updated, enter the Python console and enter the following code:
 
     ```shell
-    >>> import petal
-    >>> help(petal)
+    >>> import patron_groups
+    >>> help(patron_groups)
     ```
-    
-Note: it may be necessary to delete the user cache for the Petal package to install the updated package correctly: `$ rm -rf /home/<user>/.cache`. Git ssh key credentials will also need to be set correctly, or the package will not update.
     
 ## Petl script usage
 
-The `petl` script that serves as the command line wrapper for the petal Python package is located at `src/main/python/scripts/petl`. Several of the usage parameters are set in `run_petl_prod.sh` and `run_petl_dev.sh`, with variables set in the .env file. To run the script by itself, it can be invoked from the project root directory with `$ python src/main/python/scripts/petl`. The following are command params output by the `--help` param from the script:
+The `petl` script that serves as the command line wrapper for the petal Python package is located at `src/patron_groups/scripts/petl`. Several of the usage parameters are set in `run_petl_prod.sh` and `run_petl_dev.sh`, with variables set in the .env file. To run the script by itself, it can be invoked from the project root directory with `$ python src/patron_groups/scripts/petl`. The following are command params output by the `--help` param from the script:
 
     ```shell
     Command-line driver for patron group ETL jobs.
@@ -89,7 +86,7 @@ The `petl` script that serves as the command line wrapper for the petal Python p
     
 ## Petal configuration
 
-Package configuration is set in `src/main/python/config/petl.ini`. (While this is the default configuration for the `petl` script, it would be nice to someday be able to load appended override configs from outside the package!) It loads the configuration for each individual Grouper group and enumerates the global defaults for the script if not set in command line arguments. See the header of the `petl.ini` for details: 
+Package configuration is set in `src/patron_groups/config/petl.ini`. (While this is the default configuration for the `petl` script, it would be nice to someday be able to load appended override configs from outside the package!) It loads the configuration for each individual Grouper group and enumerates the global defaults for the script if not set in command line arguments. See the header of the `petl.ini` for details: 
 
 ```shell
 #
