@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "patron-groups"
+version = "1.7.1"
+description = "Synchronizes LDAP queries against UA's Enterprise Directory Service (EDS) into Grouper groups living in UA's central Grouper services"
+authors = ["UA Libraries <turmanator@email.arizona.edu>"]
+readme = "README.md"
+packages = [{include = "patron_groups", from = "src"}, {include = "petal", from = "src/patron_groups"}]
+include = ["src/patron_groups/config/*"]
+
+[tool.poetry.dependencies]
+python = "^3.13"
+certifi = ">=2025.7.14,<2026.0.0"
+ldap3 = ">=2.9.1,<3.0.0"
+requests = ">=2.32.4,<3.0.0"
+slack-log-handler = ">=0.3.0,<0.4.0"
+
+[tool.poetry.scripts]
+petl = "patron_groups.scripts.petl:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
