@@ -56,7 +56,7 @@ elif [[ $VAR == "prod"* ]]; then
         # uninstall old petal package
         pip uninstall -y petal
         pip uninstall -y patron_groups
-	    sudo pip3 install "$(pwd)/dist/patron_groups-${version_string}.tar.gz"
+	    pip install "$(pwd)/dist/patron_groups-${version_string}.tar.gz"
         # remove dist directory
         rm -rf ./dist
 
