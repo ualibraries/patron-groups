@@ -42,6 +42,12 @@ Production petl.library.arizona.edu will run the Patron Groups scripts daily wit
     >>> import patron_groups
     >>> help(patron_groups)
     ```
+
+**Crontab explanation**
+
+`0 2 * * *  . ./.profile && cd /usr/local/ual-patron-groups && ./run_petl_prod.sh`
+
+Everyday at 2AM, the `patrongroups` user will source the `~/.profile` to load the pyenv environment, then changes directory to `/usr/local/ual-patron-groups` and runs the production sync script.
     
 ## Petl script usage
 
