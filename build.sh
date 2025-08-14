@@ -24,7 +24,7 @@ if [[ $VAR == "dev"* ]]; then
     pipx install poetry
 
     poetry env remove python
-    poetry install --sync # only install necessary deps
+    poetry install sync # only install necessary deps
 
     echo -e "The Patron Groups package has now been installed locally. \n"
     echo -e "See the README for more information about using this for development.\n\n"
