@@ -11,7 +11,7 @@ Note that the general principle behind this project -- exposing the complexity o
 ### Dev install, build, and testing
 
 We want to avoid polluting our system-level Python environment, so we install a local
-environment using [PyEnv][pyenv] and [PyEnv-Virtualenv][pyenv-virtualenv]. For now, this repo supports scripted installation of Pyenv on MacOS, Debian Linux, and Alpine Linux.
+environment using [PyEnv][pyenv]. For now, this repo supports scripted installation of Pyenv on MacOS, Debian Linux, and Alpine Linux.
 
 **This software assumes that we have Python3 and pip3 installed in both development and production environments.**
 
@@ -28,7 +28,12 @@ The required python version (as set in the production server) is found in the .p
 
 Production petl.library.arizona.edu will run the Patron Groups scripts daily with a cron job that hits the `run_petl_prod.sh` script (sync is live).
 
+**Requirements**
 * The user needs to SSH in to petl.library.arizona.edu.
+* The user needs to have `sudo` access to run the installation as the `patrongroups` user.
+
+**Directions**
+* Run `sudo su patrongroups`
 * Change directory into `/usr/local/ual-patron-groups/`
 * Run `./build.sh`, enter "prod" at the prompt.
 * To test that the build version updated, enter the Python console and enter the following code:
