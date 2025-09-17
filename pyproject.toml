@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patron-groups"
-version = "1.7.3"
+version = "1.7.4"
 description = "Synchronizes LDAP queries against UA's Enterprise Directory Service (EDS) into Grouper groups living in UA's central Grouper services"
 authors = ["UA Libraries <turmanator@email.arizona.edu>"]
 readme = "README.md"
