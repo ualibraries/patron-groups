@@ -1,0 +1,33 @@
+# Wraps the Dockerfile (pyenv + poetry dev environment) with convenient ways
+# to run it. The host only needs Docker + Compose; pyenv/poetry live in the image.
+#
+# Common flows:
+#   docker compose build              # build once (slow first time: compiles CPython)
+#   docker compose up                 # runs run_petl_dev.sh for all groups
+#   docker compose run --rm dev       # same, but live-edits src/ from the host
+#   docker compose run --rm shell     # interactive bash in the pyenv+poetry env
+
+x-base: &base
+  build: .
+  image: patron-groups
+  # Mount .env in as a file so run_petl_dev.sh's `grep .env | xargs` parses it
+  # the same way it does on a normal dev host (handles quoted values correctly,
+  # unlike docker's --env-file / compose's env_file:).
+  volumes:
+    - ./.env:/app/.env:ro
+
+services:
+  petl:
+    <<: *base
+
+  dev:
+    <<: *base
+    profiles: [dev]
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./src:/app/src
+
+  shell:
+    <<: *base
+    profiles: [shell]
+    entrypoint: bash

@@ -8,7 +8,19 @@ Note that the general principle behind this project -- exposing the complexity o
 
 ## Setup
 
-### Dev install, build, and testing
+You have two ways to run this for development. Pick whichever fits your machine:
+
+* **Option A – Local install** using [pyenv][pyenv] + [poetry][poetry] directly on your host. Fast iteration, but you have to have pyenv and poetry installed (or willing to install them).
+* **Option B – Docker Compose** using the bundled `Dockerfile` + `compose.yml`. Your host only needs Docker; the container brings pyenv and poetry with it. Good if you don't want pyenv/poetry on your host (e.g. you use [uv][uv] instead).
+
+Both options read credentials from a `.env` file in the project root, so in either case start by copying `.env_dist` to `.env` and filling in the passwords (probably located in Stache):
+
+```shell
+cp .env_dist .env
+# then edit .env
+```
+
+### Option A – Dev install, build, and testing (local)
 
 We want to avoid polluting our system-level Python environment, so we install a local
 environment using [PyEnv][pyenv]. For now, this repo supports scripted installation of Pyenv on MacOS, Debian Linux, and Alpine Linux.
@@ -23,6 +35,60 @@ The required python version (as set in the production server) is found in the .p
 * Copy the .env_dist file to .env, then fill in the passwords with the correct credentials, probably located in Stache.
 * Test run the scripts with `./run_petl_dev.sh`. This script does not run the actual sync (--sync).
 * When the development code is ready to be tagged, change the version in `pyproject.toml`. This property is referenced as the final package version when installed in production. It should be a [SemVer][semver] number format.
+
+### Option B – Dev install, build, and testing (Docker Compose)
+
+Instead of installing pyenv and poetry on your host, you can run everything inside a container. The included `Dockerfile` reproduces exactly what `./build.sh dev` does (installs pyenv, compiles the pinned CPython, installs poetry via pipx, runs `poetry sync`), and `compose.yml` wires up the common ways to use it.
+
+Requirements:
+* Docker Engine and the Compose plugin (`docker compose ...`, v2). Nothing else — no pyenv, no poetry, no matching Python version on the host.
+
+Steps:
+
+* Check out the repo files and change directory into the project root.
+* Copy `.env_dist` to `.env` and fill in the passwords.
+* Build the image (first build is slow: it compiles CPython inside the image):
+
+    ```shell
+    docker compose build
+    ```
+
+* Test run the scripts with the default service. This runs `run_petl_dev.sh` for every group with sync **off** (matches Option A's behavior):
+
+    ```shell
+    docker compose up
+    ```
+
+The `compose.yml` also defines two opt-in services under Compose profiles:
+
+* `dev` – same as the default, but bind-mounts your host `src/` on top of the image copy so code edits are picked up without rebuilding:
+
+    ```shell
+    docker compose run --rm dev
+    ```
+
+* `shell` – drops you into `bash` inside the pyenv + poetry environment. Useful for ad-hoc `poetry run petl ...` invocations or poking around:
+
+    ```shell
+    docker compose run --rm shell
+    ```
+
+Running a single group ad-hoc (equivalent to editing the `for g in ...` loop in `run_petl_dev.sh`):
+
+```shell
+docker compose run --rm shell -lc '
+  export $(grep -v "^#" ./.env | xargs) && \
+  poetry run petl --config ./src/patron_groups/config/petl.ini \
+                  --group faculty-base \
+                  --ldap_passwd "$PGRPS_LDAP_PASSWD" \
+                  --grouper_passwd "$PGRPS_GROUPER_PASSWD" \
+                  --sync_max "$PGRPS_SYNC_MAX" \
+                  --debug'
+```
+
+Notes:
+* `.env` is mounted as a *file* (not passed via `env_file:` / `--env-file`) so that `run_petl_dev.sh`'s `grep .env | xargs` parses quoted values correctly, the same way it does on a local host.
+* The container is intended for **development**. Production still deploys via `run_petl_prod.sh` on `petl.library.arizona.edu` (see below) — the container isn't part of the production path.
 
 ### Production deployment
 
@@ -148,4 +214,6 @@ UA Libraries, TeSS-Dev Team
 [homebrew]: https://brew.sh/
 [pyenv]: https://github.com/pyenv/pyenv
 [pyenv-virtualenv]: https://github.com/pyenv/pyenv-virtualenv
+[poetry]: https://python-poetry.org/
+[uv]: https://docs.astral.sh/uv/
 [semver]: http://semver.org
