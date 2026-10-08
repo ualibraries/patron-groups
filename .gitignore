@@ -2,3 +2,4 @@
 /src/main/python/dist
 __pycache__
 /src/main/python/src/petal.egg-info
+/.DS_Store
