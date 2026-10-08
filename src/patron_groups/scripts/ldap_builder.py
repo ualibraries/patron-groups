@@ -66,7 +66,8 @@ class Directory( object ):
             sys.exit( 'PGRPS_LDAP_PASSWD is not set in the env file' )
         self.search_dn = 'ou=people,' + cfg['ldap_base_dn']
         bind_dn = f"uid={cfg['ldap_user']},ou=app users,{cfg['ldap_base_dn']}"
-        self.conn = ldap3.Connection( 'ldaps://' + cfg['ldap_host'], bind_dn, cfg['ldap_passwd'], auto_bind = True )
+        self.conn = ldap3.Connection( 'ldaps://' + cfg['ldap_host'], bind_dn, cfg['ldap_passwd'], auto_bind = True,
+                                     read_only = True )  # never allow writes to the directory
 
     def search( self, query, attributes ):
         """Return a list of attribute dicts for every entry matching query (paged)."""
@@ -279,8 +280,14 @@ def main():
             if mine:
                 path = ask( 'Save matching uaids to file (blank to skip)' )
                 if path:
-                    Path( path ).write_text( '\n'.join( sorted( mine ) ) + '\n' )
-                    print( f'  wrote {len( mine )} uaids to {path}' )
+                    out = Path( path ).expanduser()
+                    if out.is_dir():
+                        print( f'  {out} is a directory, not saving' )
+                    elif out.exists() and not ask( f'{out} exists, overwrite? (y/n)', 'n' ).lower().startswith( 'y' ):
+                        print( '  not saved' )
+                    else:
+                        out.write_text( '\n'.join( sorted( mine ) ) + '\n' )
+                        print( f'  wrote {len( mine )} uaids to {out}' )
         elif choice == '7':
             query = ask( 'Filter' ) or query
         elif choice in ( 'q', 'quit', 'exit' ):
