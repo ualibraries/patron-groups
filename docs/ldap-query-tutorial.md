@@ -141,6 +141,11 @@ Run it from the project root with Poetry:
 ```sh
 poetry run python src/patron_groups/scripts/ldap_builder.py
 ```
+or from the petl module:
+
+```
+poetry run ldap-builder
+```
 
 It reads `PGRPS_LDAP_PASSWD` from `.env` and the connection settings and
 group definitions from `petl.ini` automatically; pass `--env` / `--config`
